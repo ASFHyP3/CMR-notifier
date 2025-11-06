@@ -2,13 +2,13 @@ Resources:
   DeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      MessageRetentionPeriod: 1209600  # TODO: Adjust to appropriate value
+      MessageRetentionPeriod: 1209600
 
   Queue:
     Type: AWS::SQS::Queue
     Properties:
-      MessageRetentionPeriod: 1209600  # TODO: Adjust to appropriate value
-      VisibilityTimeout: 28800  # TODO: Adjust to appropriate value
+      MessageRetentionPeriod: 1209600
+      VisibilityTimeout: 900
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
         maxReceiveCount: 3
@@ -38,8 +38,12 @@ Resources:
       Target: !Ref Topic
       SourceParameters:
         SqsQueueParameters:
-          BatchSize: 10  # TODO: Adjust to appropriate value
-          MaximumBatchingWindowInSeconds: 60  # TODO: Adjust to appropriate value
+          BatchSize: 10
+          MaximumBatchingWindowInSeconds: 60
+        FilterCriteria:
+          Filters:
+            - Pattern: '{ "body": {"Type": ["Notification"]}}'
+
 
   PipeExecutionRole:
     Type: AWS::IAM::Role
