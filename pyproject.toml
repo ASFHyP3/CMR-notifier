@@ -8,6 +8,7 @@ dynamic = ["version"]
 maintainers = [
     {name="ASF SciDev Team", email="uaf-asf-scidev@alaska.edu"},
 ]
+license = {text = "BSD-3-Clause"}
 readme = "README.md"
 
 requires-python = "==3.13.*"
