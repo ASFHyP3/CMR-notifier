@@ -1,0 +1,17 @@
+{
+  "Type" : "Notification",
+  "MessageId" : "a12f5414-7d53-5e66-9a6a-359490f9a346",
+  "TopicArn" : "arn:aws:sns:us-east-1:621933553860:cmr-subscriptions-prod",
+  "Subject" : "Update Notification",
+  "Message" : "{\"concept-id\": \"G2982815852-ASF\", \"revision-id\": \"2\", \"granule-ur\": \"S1_152796_IW3_20211126T150456_VV_AE50-BURST\", \"location\": \"https://cmr.earthdata.nasa.gov:443/search/concepts/G2982815852-ASF/2\"}",
+  "Timestamp" : "2025-11-02T05:26:02.517Z",
+  "SignatureVersion" : "1",
+  "Signature" : "YBhQDVoy/AF/gn17LlAFqXuCOt8KNKrllFK2/LxBBkAYpE79NArnyrKtZkhrQFd7maKWtQv7+woQn3LR9KJUwJEUOY0M9jclV/Dnfq09Afp0kaI0FPTR6TGZHdKzhpRFjG0sqK7j52f1H8r7PmaX3S+D+ASJqW9OVI7qC2CjaicHH7NPJZ57rTqFGsugnRaB8HXe0F07R8eo3o+c3YwD9H39pJ+8Lt3ZOMSjQf+JsHxi8a7iBpZ3PGeJgqdNZaETdq+IsW1SMFiOthfh3ZjEaEwELwiMk2+85s6KSMem8Z9dbkmmFXhhLEkc2DfaReFTY1Eyoip0V0i5jhlsFBJa+g==",
+  "SigningCertURL" : "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-6209c161c6221fdf56ec1eb5c821d112.pem",
+  "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:621933553860:cmr-subscriptions-prod:ee6899c4-4c14-4acb-ba58-6da85b4ad07b",
+  "MessageAttributes" : {
+    "collection-concept-id" : {"Type":"String","Value":"C2709161906-ASF"},
+    "mode" : {"Type":"String","Value":"Update"},
+    "subscriber" : {"Type":"String","Value":"mfangaritasr"}
+  }
+}
