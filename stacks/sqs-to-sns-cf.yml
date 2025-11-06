@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
-  S1BurstTopicArn:
+  TopicArn:
     Type: String
 
 Resources:
@@ -38,7 +38,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt PipeExecutionRole.Arn
       Source: !GetAtt Queue.Arn
-      Target: !Ref S1BurstTopicArn
+      Target: !Ref TopicArn
       SourceParameters:
         SqsQueueParameters:
           BatchSize: 10
@@ -72,7 +72,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - sns:Publish
-                Resource: !Ref S1BurstTopicArn
+                Resource: !Ref TopicArn
 
 Outputs:
   QueueUrl:
