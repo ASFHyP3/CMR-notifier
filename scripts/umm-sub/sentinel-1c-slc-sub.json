@@ -1,0 +1,18 @@
+{
+  "Name": "Sentinel-1C SLCs",
+  "Type": "granule",
+  "SubscriberId": "asf_subscriber",
+  "CollectionConceptId": "C3470873558-ASF",
+  "EndPoint": "TBD",
+  "Mode": [
+    "New",
+    "Update",
+    "Delete"
+  ],
+  "Method": "ingest",
+  "MetadataSpecification": {
+    "URL": "https://cdn.earthdata.nasa.gov/umm/subscription/v1.1.1",
+    "Name": "UMM-Sub",
+    "Version": "1.1.1"
+  }
+}
