@@ -9,22 +9,22 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        S1SlcTopicArn: !Ref S1SlcTopic
-      TemplateURL: stacks/s1a-slc-cf.yml
+        TopicArn: !Ref S1SlcTopic
+      TemplateURL: stacks/sqs-to-sns-cf.yml
 
   S1BSlcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        S1SlcTopicArn: !Ref S1SlcTopic
-      TemplateURL: stacks/s1b-slc-cf.yml
+        TopicArn: !Ref S1SlcTopic
+      TemplateURL: stacks/sqs-to-sns-cf.yml
 
   S1CSlcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        S1SlcTopicArn: !Ref S1SlcTopic
-      TemplateURL: stacks/s1c-slc-cf.yml
+        TopicArn: !Ref S1SlcTopic
+      TemplateURL: stacks/sqs-to-sns-cf.yml
 
   # TODO: Nice name?
   S1BurstTopic:
@@ -34,8 +34,8 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        S1BurstTopicArn: !Ref S1BurstTopic
-      TemplateURL: stacks/s1-burst-cf.yml
+        TopicArn: !Ref S1BurstTopic
+      TemplateURL: stacks/sqs-to-sns-cf.yml
 
 Outputs:
   S1SlcTopicArn:
