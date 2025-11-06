@@ -1,5 +1,5 @@
 Parameters:
-  S1BurstTopicArn:
+  S1SlcTopicArn:
     Type: String
 
 Resources:
@@ -36,7 +36,7 @@ Resources:
     Properties:
       RoleArn: !GetAtt PipeExecutionRole.Arn
       Source: !GetAtt Queue.Arn
-      Target: !Ref S1BurstTopicArn
+      Target: !Ref S1SlcTopicArn
       SourceParameters:
         SqsQueueParameters:
           BatchSize: 10
@@ -70,7 +70,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - sns:Publish
-                Resource: !Ref S1BurstTopicArn
+                Resource: !Ref S1SlcTopicArn
 
 Outputs:
   QueueUrl:

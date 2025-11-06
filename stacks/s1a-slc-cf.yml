@@ -1,3 +1,7 @@
+Parameters:
+  S1SlcTopicArn:
+    Type: String
+
 Resources:
   DeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -27,15 +31,12 @@ Resources:
       Queues:
         - !Ref Queue
 
-  Topic:
-    Type: AWS::SNS::Topic
-
   Pipe:
     Type: AWS::Pipes::Pipe
     Properties:
       RoleArn: !GetAtt PipeExecutionRole.Arn
       Source: !GetAtt Queue.Arn
-      Target: !Ref Topic
+      Target: !Ref S1SlcTopicArn
       SourceParameters:
         SqsQueueParameters:
           BatchSize: 10
@@ -69,12 +70,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - sns:Publish
-                Resource: !Ref Topic
+                Resource: !Ref S1SlcTopicArn
 
 Outputs:
   QueueUrl:
     Description: URL of the SQS Queue
     Value: !Ref Queue
-  TopicArn:
-    Description: ARN of the SNS Topic
-    Value: !Ref Topic
