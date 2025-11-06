@@ -1,0 +1,95 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "CMR-notifier"
+dynamic = ["version"]
+maintainers = [
+    {name="ASF SciDev Team", email="uaf-asf-scidev@alaska.edu"},
+]
+readme = "README.md"
+
+requires-python = "==3.13.*"
+dependencies = []
+
+[project.optional-dependencies]
+develop = [
+    'cfn-lint==1.22.5',
+    'mypy==1.16.0',
+    'ruff==0.11.12',
+    'setuptools_scm>=8',
+]
+
+[project.urls]
+Homepage = "https://github.com/ASFHyP3/CMR-notifier"
+"Bug Tracker" ="https://github.com/ASFHyP3/CMR-notifier/issues"
+
+
+[tool.setuptools_scm]
+
+[tool.ruff]
+line-length = 120
+# The directories to consider when resolving first- vs. third-party imports.
+# See: https://docs.astral.sh/ruff/settings/#src
+src = ["**/src", "tests"]
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "single"
+
+[tool.ruff.lint]
+extend-select = [
+    "I",   # isort: https://docs.astral.sh/ruff/rules/#isort-i
+    "UP",  # pyupgrade: https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "D",   # pydocstyle: https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "ANN", # annotations: https://docs.astral.sh/ruff/rules/#flake8-annotations-ann
+    "PTH", # use-pathlib-pth: https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+lines-after-imports = 2
+
+[tool.ruff.lint.flake8-annotations]
+suppress-dummy-args = true
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/*" = ["D1", "ANN"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+strict_equality = true
+check_untyped_defs = true
+install_types = true
+non_interactive = true
+pretty = true
+disable_error_code = ["import-untyped"]
+
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64"]
+
+[tool.pixi.dependencies]
+# For PyCharm IDE integration
+pixi-pycharm = ">=0.0.8"
+
+#[tool.pixi.pypi-dependencies]
+#cmr_notifier = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { features = ["develop"], solve-group = "default" }
+
+[tool.pixi.tasks]
+lint-cf = "cfn-lint --template $(find . -name cloudformation.yml) --info --ignore-checks W3002"
+lint-py = "ruff check"
+format-py = "ruff format"
+type-py = {cmd = "mypy --exclude {{ mypy_excludes }} .", args = [{"arg" = "mypy_excludes", "default" = "_test"}]}
+static = [{task = "lint-cf"}, {task = "lint-py"}, {task = "format-py"}, {task = "type-py"}]
