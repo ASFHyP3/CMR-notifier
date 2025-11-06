@@ -1,6 +1,14 @@
 AWSTemplateFormatVersion: 2010-09-09
 
+Transform: AWS::LanguageExtensions
+
+Parameters:
+
+  CollectionNames:
+    Type: CommaDelimitedList
+
 Resources:
+
   # TODO: Nice name?
   Topic:
     Type: AWS::SNS::Topic
@@ -26,47 +34,18 @@ Resources:
                   - sqs
                   - lambda
 
-  S1ASlcStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
-        TopicArn: !Ref Topic
-      TemplateURL: stacks/sqs-to-sns-cf.yml
-
-  S1BSlcStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
-        TopicArn: !Ref Topic
-      TemplateURL: stacks/sqs-to-sns-cf.yml
-
-  S1CSlcStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
-        TopicArn: !Ref Topic
-      TemplateURL: stacks/sqs-to-sns-cf.yml
-
-  S1BurstStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
-        TopicArn: !Ref Topic
-      TemplateURL: stacks/sqs-to-sns-cf.yml
+  "Fn::ForEach::CollectionNamesLoop":
+    - CollectionName
+    - !Ref CollectionNames
+    - "Sqs&{CollectionName}":
+        Type: AWS::CloudFormation::Stack
+        Properties:
+          Parameters:
+            TopicArn: !Ref Topic
+          TemplateURL: stacks/sqs-to-sns-cf.yml
 
 Outputs:
+
   TopicArn:
     Description: ARN of the SNS Topic
     Value: !Ref Topic
-  S1ASlcQueueUrl:
-    Description: URL of the SQS Queue for Sentinel-1A SLCs
-    Value: !GetAtt S1ASlcStack.Outputs.QueueUrl
-  S1BSlcQueueUrl:
-    Description: URL of the SQS Queue for Sentinel-1B SLCs
-    Value: !GetAtt S1BSlcStack.Outputs.QueueUrl
-  S1CSlcQueueUrl:
-    Description: URL of the SQS Queue for Sentinel-1C SLCs
-    Value: !GetAtt S1CSlcStack.Outputs.QueueUrl
-  S1BurstQueueUrl:
-    Description: URL of the SQS Queue for Sentinel-1 Bursts
-    Value: !GetAtt S1BurstStack.Outputs.QueueUrl
