@@ -1,4 +1,5 @@
 Resources:
+  # TODO: Nice name?
   S1SlcTopic:
     Type: AWS::SNS::Topic
 
@@ -23,6 +24,7 @@ Resources:
         S1SlcTopicArn: !Ref S1SlcTopic
       TemplateURL: stacks/s1c-slc-cf.yml
 
+  # TODO: Nice name?
   S1BurstTopic:
     Type: AWS::SNS::Topic
 
