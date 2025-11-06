@@ -7,6 +7,14 @@ The CMR Notifier project provide AWS SNS topics applications can subscribe to fo
 
 If you're interested in notification for another ASF-managed dataset, let us know by opening an issue: <https://github.com/ASFHyP3/CMR-notifier/issues/new>
 
+## Knowledge Base
+
+Currently, CMR Notifier uses CMR Ingest Subscriptions to as the source of new granule notifications:
+* https://wiki.earthdata.nasa.gov/spaces/CMR/pages/404522012/CMR+Ingest+Subscriptions
+
+> [!WARNING]
+> As documented in the [CMR API docs](https://cmr.earthdata.nasa.gov/ingest/site/docs/ingest/api.html#subscription), each AWS SQS queue should have only one agreed upon subscription!
+
 ## Setup
 
 This project uses `pixi` to manage software environments. To get started: 
@@ -36,3 +44,11 @@ This project uses `pixi` to manage software environments. To get started:
 5. (optional) Setup you IDE to work with pixi:
    * PyCharm: https://pixi.sh/dev/integration/editor/jetbrains/
    * VSCode: https://pixi.sh/dev/integration/editor/vscode/
+
+
+## Usage
+
+We use `pixi` as a task runner (similar to a `make`). To see all available tasks, run:
+```bash
+pixi task list
+```
