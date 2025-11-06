@@ -36,6 +36,9 @@ Resources:
       TemplateURL: stacks/s1-burst-cf.yml
 
 Outputs:
+  S1SlcTopicArn:
+    Description: ARN of the SNS Topic for Sentinel-1 SLCs
+    Value: !Ref S1SlcTopic
   S1ASlcQueueUrl:
     Description: URL of the SQS Queue for Sentinel-1A SLCs
     Value: !GetAtt S1ASlcStack.Outputs.QueueUrl
@@ -45,13 +48,10 @@ Outputs:
   S1CSlcQueueUrl:
     Description: URL of the SQS Queue for Sentinel-1C SLCs
     Value: !GetAtt S1CSlcStack.Outputs.QueueUrl
-  S1SlcTopicArn:
-    Description: ARN of the SNS Topic for Sentinel-1 SLCs
-    Value: !Ref S1SlcTopic
 
-  S1BurstQueueUrl:
-    Description: URL of the SQS Queue for Sentinel-1 Bursts
-    Value: !GetAtt S1BurstStack.Outputs.QueueUrl
   S1BurstTopicArn:
     Description: ARN of the SNS Topic for Sentinel-1 Bursts
     Value: !Ref S1BurstTopic
+  S1BurstQueueUrl:
+    Description: URL of the SQS Queue for Sentinel-1 Bursts
+    Value: !GetAtt S1BurstStack.Outputs.QueueUrl
