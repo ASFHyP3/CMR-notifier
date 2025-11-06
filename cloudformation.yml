@@ -1,0 +1,25 @@
+Resources:
+  S1SlcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: stacks/s1-burst-cf.yml
+
+  S1BurstStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: stacks/s1-burst-cf.yml
+
+Outputs:
+  S1SlcQueueUrl:
+    Description: URL of the SQS Queue for Sentinel-1 SLCs
+    Value: !GetAtt S1SlcStack.Outputs.QueueUrl
+  S1SlcTopicArn:
+    Description: ARN of the SNS Topic for Sentinel-1 SLCs
+    Value: !GetAtt S1SlcStack.Outputs.topicArn
+
+  S1BurstQueueUrl:
+    Description: URL of the SQS Queue for Sentinel-1 Bursts
+    Value: !GetAtt S1BurstStack.Outputs.QueueUrl
+  S1BurstTopicArn:
+    Description: ARN of the SNS Topic for Sentinel-1 Bursts
+    Value: !GetAtt S1BurstStack.Outputs.topicArn

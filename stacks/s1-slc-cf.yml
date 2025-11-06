@@ -1,0 +1,76 @@
+Resources:
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600  # TODO: Adjust to appropriate value
+
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600  # TODO: Adjust to appropriate value
+      VisibilityTimeout: 28800  # TODO: Adjust to appropriate value
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt Queue.Arn
+      Queues:
+        - !Ref Queue
+
+  Topic:
+    Type: AWS::SNS::Topic
+
+  Pipe:
+    Type: AWS::Pipes::Pipe
+    Properties:
+      RoleArn: !GetAtt PipeExecutionRole.Arn
+      Source: !GetAtt Queue.Arn
+      Target: !Ref Topic
+      SourceParameters:
+        SqsQueueParameters:
+          BatchSize: 10  # TODO: Adjust to appropriate value
+          MaximumBatchingWindowInSeconds: 60  # TODO: Adjust to appropriate value
+
+  PipeExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: pipes.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: PipeAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !GetAtt Queue.Arn
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref Topic
+
+Outputs:
+  QueueUrl:
+    Description: URL of the SQS Queue
+    Value: !Ref Queue
+  TopicArn:
+    Description: ARN of the SNS Topic
+    Value: !Ref Topic
