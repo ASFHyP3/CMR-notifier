@@ -20,6 +20,10 @@ develop = [
     'mypy==1.16.0',
     'ruff==0.11.12',
     'setuptools_scm>=8',
+    'types-requests',
+]
+configure = [
+    'requests'
 ]
 
 [project.urls]
@@ -86,7 +90,7 @@ pixi-pycharm = ">=0.0.8"
 #cmr_notifier = { path = ".", editable = true }
 
 [tool.pixi.environments]
-default = { features = ["develop"], solve-group = "default" }
+default = { features = ["develop", "configure"], solve-group = "default" }
 
 [tool.pixi.tasks]
 lint-cf = "cfn-lint --template $(find . -name cloudformation.yml) --info --ignore-checks W3002"
