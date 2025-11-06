@@ -1,0 +1,34 @@
+name: deploy.yml
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  cloudformation-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Package and deploy
+        shell: bash
+        run: |
+          aws cloudformation package \
+            --template-file cloudformation.yml \
+            --s3-bucket=${{ vars.CF_TEMPLATE_BUCKET }} \
+            --output-template-file packaged.yml
+  
+          aws cloudformation deploy \
+            --template-file packaged.yml \
+            --stack-name=${{ vars.STACK_NAME }} \
+            --capabilities CAPABILITY_IAM
