@@ -5,6 +5,27 @@ Resources:
   Topic:
     Type: AWS::SNS::Topic
 
+  TopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref Topic
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - sns:Subscribe
+              - sns:Receive
+            Resource: !Ref Topic
+            Principal:
+              AWS: "*"
+            Condition:
+              StringEquals:
+                SNS:Protocol:
+                  - sqs
+                  - lambda
+
   S1ASlcStack:
     Type: AWS::CloudFormation::Stack
     Properties:
