@@ -1,0 +1,41 @@
+name: deploy.yml
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  cloudformation-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Package and deploy
+        shell: bash
+        run: |
+          python -m pip install . -t src/
+
+          aws cloudformation package \
+            --template-file cloudformation.yml \
+            --s3-bucket=${{ vars.CF_TEMPLATE_BUCKET }} \
+            --output-template-file packaged.yml
+  
+          aws cloudformation deploy \
+            --template-file packaged.yml \
+            --stack-name=${{ vars.STACK_NAME }} \
+            --capabilities CAPABILITY_IAM
