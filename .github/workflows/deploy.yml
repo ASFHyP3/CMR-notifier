@@ -13,16 +13,23 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: aws-actions/configure-aws-credentials@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
 
       - name: Package and deploy
         shell: bash
         run: |
+          python -m pip install . -t src/
+
           aws cloudformation package \
             --template-file cloudformation.yml \
             --s3-bucket=${{ vars.CF_TEMPLATE_BUCKET }} \
