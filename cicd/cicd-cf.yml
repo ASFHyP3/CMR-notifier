@@ -37,6 +37,7 @@ Resources:
 
               - Effect: Allow
                 Action:
+                  - ecr:*
                   - events:*
                   - iam:*
                   - lambda:*
