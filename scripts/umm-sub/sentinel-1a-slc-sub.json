@@ -1,9 +1,9 @@
 {
   "Name": "Sentinel-1A SLCs",
   "Type": "granule",
-  "SubscriberId": "asjohnston",
+  "SubscriberId": "asf_subscriber",
   "CollectionConceptId": "C1214470488-ASF",
-  "EndPoint": "arn:aws:sqs:us-west-2:011491233277:asj-cmr-notifications-dev-SqsSENTINEL1ASLC-EQT8DAKBAOFL-Queue-91rmrv34ZHXL",
+  "EndPoint": "TBD",
   "Mode": [
     "New",
     "Update",
