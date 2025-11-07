@@ -440,8 +440,8 @@ packages:
   requires_python: '>=3.7'
 - pypi: ./
   name: cmr-notifier
-  version: 0.0.1.dev49+gdcdabf5f0.d20251107
-  sha256: af177e33ae8d13d24303dc0b96eafa891ad7941883d1d3e92a8d193686be289b
+  version: 0.0.1.dev58+gad22006c6
+  sha256: 9bc8aa2c4ba0be1a2710459128b9d974ae5d162e1bc447e48b1bec73a8966c6a
   requires_dist:
   - requests==2.32.5
   - boto3==1.40.68
