@@ -64,7 +64,7 @@ jobs:
           export ECR_REPOSITORY=${GITHUB_REPOSITORY,,}
           echo "ECR_REPOSITORY=${ECR_REPOSITORY}" >> ${GITHUB_ENV}
           export IMAGE_URI=${ECR_REGISTRY}/${ECR_REPOSITORY}:${VERSION_TAG}
-          echo "IMAGE_URI=${IMAGE_URI}" >> ${$GITHUB_OUTPUT}
+          echo "IMAGE_URI=${IMAGE_URI}" >> ${GITHUB_OUTPUT}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

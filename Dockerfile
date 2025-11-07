@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.12
+FROM public.ecr.aws/lambda/python:3.13
 
 COPY src ${LAMBDA_TASK_ROOT}
 COPY pyproject.toml ${LAMBDA_TASK_ROOT}
