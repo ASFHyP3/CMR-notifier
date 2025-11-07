@@ -31,6 +31,9 @@ Homepage = "https://github.com/ASFHyP3/CMR-notifier"
 "Bug Tracker" ="https://github.com/ASFHyP3/CMR-notifier/issues"
 
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.setuptools_scm]
 
 [tool.ruff]
