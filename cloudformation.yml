@@ -1,7 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Transform: AWS::LanguageExtensions
-
 Resources:
 
   # TODO: Nice name?
