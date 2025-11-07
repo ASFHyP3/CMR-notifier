@@ -60,7 +60,7 @@ Resources:
                 Action:
                   - dynamodb:GetItem
                   - dynamodb:PutItem
-                Resource: !Ref Topic
+                Resource: !GetAtt Table.Arn
 
   Lambda:
     Type: AWS::Lambda::Function
