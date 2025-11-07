@@ -94,7 +94,7 @@ cmr_notifier = { path = ".", editable = true }
 default = { features = ["develop"], solve-group = "default" }
 
 [tool.pixi.tasks]
-lint-cf = "cfn-lint --template $(find . -name cloudformation.yml) --info"
+lint-cf = "cfn-lint --template $(find . -name cloudformation.yml -o -name '*-cf.yml') --info"
 lint-py = "ruff check"
 format-py = "ruff format"
 type-py = {cmd = "mypy --exclude {{ mypy_excludes }} .", args = [{"arg" = "mypy_excludes", "default" = "_test"}]}
