@@ -64,6 +64,7 @@ suppress-dummy-args = true
 
 [tool.ruff.lint.extend-per-file-ignores]
 "tests/*" = ["D1", "ANN"]
+"src/*" = ["D103", "D100"]
 
 [tool.mypy]
 python_version = "3.13"

@@ -33,8 +33,8 @@ def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
         'created_at': f'{updated_since.isoformat()},',
         'page_size': '2000',
     }
-    headers = {}
-    granules = []
+    headers: dict = {}
+    granules: list = []
     while True:
         response = session.get(url, params=params, headers=headers)
         response.raise_for_status()
@@ -58,7 +58,7 @@ def send_notification(topic_arn: str, granule: str) -> None:
 
 
 def send_notifications(topic_arn: str, window_in_seconds: int) -> None:
-    updated_since = datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(seconds=window_in_seconds)
+    updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
     granules = get_granules_updated_since(updated_since)
     for granule in granules:
         if not already_exists(granule):
@@ -66,5 +66,5 @@ def send_notifications(topic_arn: str, window_in_seconds: int) -> None:
             put_item(granule)
 
 
-def lambda_handler(event: dict, context):
+def lambda_handler(event: dict, context: dict) -> None:
     send_notifications(os.environ['TOPIC_ARN'], int(os.environ['WINDOW_IN_SECONDS']))
