@@ -135,7 +135,7 @@ jobs:
         shell: bash
         run: |
           aws cloudformation deploy \
-            --template-file packaged.yml \
+            --template-file cloudformation.yml \
             --stack-name=cmr-notifier-${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }} \
             --capabilities CAPABILITY_IAM
             --parameter-overrides \
