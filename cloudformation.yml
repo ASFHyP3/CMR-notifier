@@ -85,7 +85,6 @@ Resources:
         Variables:
           TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
-          WINDOW_IN_SECONDS: 120
       MemorySize: 128
       Role: !GetAtt Role.Arn
       Timeout: 900
