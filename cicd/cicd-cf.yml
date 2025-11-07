@@ -50,7 +50,9 @@ Resources:
                 Resource: "*"
 
               - Effect: Allow
-                Action: s3:PutObject
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
                 Resource: !Sub "arn:aws:s3:::${TemplateBucketName}/*"
 
               - Effect: Allow
