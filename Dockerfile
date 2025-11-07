@@ -1,0 +1,10 @@
+FROM public.ecr.aws/lambda/python:3.13
+
+COPY src ${LAMBDA_TASK_ROOT}/src
+COPY pyproject.toml ${LAMBDA_TASK_ROOT}
+
+ARG SETUPTOOLS_SCM_PRETEND_VERSION=0.0.0
+RUN pip install ${LAMBDA_TASK_ROOT}
+
+# NOTE: handler set as CMD by  parameter override outside of the Dockerfile
+# CMD [ "lambda_function.handler" ]

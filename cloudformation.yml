@@ -1,5 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
 
+Parameters:
+  EcrImageUri:
+    Description: ECR image URI
+    Type: String
+
 Resources:
 
   # TODO: Nice name?
@@ -59,20 +64,30 @@ Resources:
                   - dynamodb:GetItem
                   - dynamodb:PutItem
                 Resource: !GetAtt Table.Arn
+              - Effect: Allow
+                Action:
+                  - ecr:BatchGetImage
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetAuthorizationToken
+                  - ecr:GetDownloadUrlForLayer
+                Resource: !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
 
   Lambda:
     Type: AWS::Lambda::Function
     Properties:
+      PackageType: Image
+      ImageConfig:
+        Command:
+          - cmr_notifier.main.lambda_handler
+      Code:
+        ImageUri: !Ref EcrImageUri
       Environment:
         Variables:
           TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
           WINDOW_IN_SECONDS: 120
-      Code: src/
-      Handler: main.lambda_handler
       MemorySize: 128
       Role: !GetAtt Role.Arn
-      Runtime: python3.13
       Timeout: 900
 
   EventInvokeConfig:
