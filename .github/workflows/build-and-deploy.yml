@@ -55,7 +55,7 @@ jobs:
       VERSION_TAG: ${{ needs.version-info.outputs.version_tag }}
       PLATFORMS: 'linux/amd64'
     outputs:
-      image_uri: ${{ steps.set_outputs.outputs.image_uri }}
+      image_uri: ${{ steps.set_outputs.outputs.IMAGE_URI }}
     steps:
       - uses: actions/checkout@v5
 
