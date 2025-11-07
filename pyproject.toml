@@ -90,6 +90,9 @@ platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64"]
 # For PyCharm IDE integration
 pixi-pycharm = ">=0.0.8"
 
+# FIXME: this adds the editable install to the pixi lock file, but because we use setuptools_scm, the version
+#        number expected by pixi includes the commit hash and so the lockfile is almost never up to date. Need to
+#        figure out how to do both.
 #[tool.pixi.pypi-dependencies]
 #cmr_notifier = { path = ".", editable = true }
 
