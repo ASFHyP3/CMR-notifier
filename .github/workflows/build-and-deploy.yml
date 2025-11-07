@@ -137,6 +137,6 @@ jobs:
           aws cloudformation deploy \
             --template-file cloudformation.yml \
             --stack-name=cmr-notifier-${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }} \
-            --capabilities CAPABILITY_IAM
+            --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               EcrImageUri=${{ needs.dockerize.outputs.image_uri }}
