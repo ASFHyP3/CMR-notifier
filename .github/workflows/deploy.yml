@@ -11,6 +11,7 @@ jobs:
     environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v5
         with:
@@ -19,7 +20,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - uses: actions/setup-python@v6
         with:
