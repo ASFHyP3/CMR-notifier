@@ -1,4 +1,4 @@
-name: deploy.yml
+name: Build image and deploy
 on:
   pull_request:
     branches:
@@ -49,6 +49,7 @@ jobs:
       cancel-in-progress: true
     permissions:
       contents: read
+      id-token: write
     env:
       ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
       VERSION_TAG: ${{ needs.version-info.outputs.version_tag }}
@@ -118,6 +119,7 @@ jobs:
       - dockerize
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v5
