@@ -88,7 +88,6 @@ Resources:
           WINDOW_IN_SECONDS: 120
       MemorySize: 128
       Role: !GetAtt Role.Arn
-      Runtime: python3.13
       Timeout: 900
 
   EventInvokeConfig:
