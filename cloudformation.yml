@@ -2,11 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Transform: AWS::LanguageExtensions
 
-Parameters:
-
-  CollectionNames:
-    Type: CommaDelimitedList
-
 Resources:
 
   # TODO: Nice name?
@@ -22,9 +17,7 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Action:
-              - sns:Subscribe
-              - sns:Receive
+            Action: sns:Subscribe
             Resource: !Ref Topic
             Principal:
               AWS: "*"
@@ -34,48 +27,72 @@ Resources:
                   - sqs
                   - lambda
 
-  DeadLetterQueue:
-    Type: AWS::SQS::Queue
+  LogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
-      MessageRetentionPeriod: 1209600
+      LogGroupName: !Sub "/aws/lambda/${Lambda}"
+      RetentionInDays: 90
 
-  PipeExecutionRole:
+  Role:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
-          - Effect: Allow
-            Principal:
-              Service: pipes.amazonaws.com
-            Action: sts:AssumeRole
+          Action: sts:AssumeRole
+          Principal:
+            Service: lambda.amazonaws.com
+          Effect: Allow
       Policies:
-        - PolicyName: PipeAccessPolicy
+        - PolicyName: policy
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
-                  - sqs:ReceiveMessage
-                  - sqs:DeleteMessage
-                  - sqs:GetQueueAttributes
-                Resource: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*"
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
               - Effect: Allow
-                Action:
-                  - sns:Publish
+                Action: sns:Publish
                 Resource: !Ref Topic
 
-  "Fn::ForEach::CollectionNamesLoop":
-    - CollectionName
-    - !Ref CollectionNames
-    - "Sqs&{CollectionName}":
-        Type: AWS::CloudFormation::Stack
-        Properties:
-          Parameters:
-            TopicArn: !Ref Topic
-            PipeExecutionRoleArn: !GetAtt PipeExecutionRole.Arn
-            DeadLetterQueueArn: !GetAtt DeadLetterQueue.Arn
-          TemplateURL: stacks/sqs-to-sns-cf.yml
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref Topic
+          WINDOW_IN_SECONDS: 120
+      Code: src/
+      Handler: main.lambda_handler
+      MemorySize: 128
+      Role: !GetAtt Role.Arn
+      Runtime: python3.13
+      Timeout: 900
+
+  EventInvokeConfig:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties:
+      FunctionName: !Ref Lambda
+      Qualifier: $LATEST
+      MaximumRetryAttempts: 0
+
+  Schedule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: "rate(1 minute)"
+      Targets:
+        - Arn: !GetAtt Lambda.Arn
+          Id: schedule
+
+  EventPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt Lambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt Schedule.Arn
 
 Outputs:
 

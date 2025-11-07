@@ -23,16 +23,11 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - cloudwatch:*
                   - events:*
                   - iam:*
-                  - kms:*
+                  - lambda:*
                   - logs:*
-                  - pipes:*
-                  - secretsmanager:*
                   - sns:*
-                  - sqs:*
-                  - ssm:GetParameters
                 Resource: "*"
 
               - Effect: Allow
