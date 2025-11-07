@@ -46,6 +46,7 @@ Resources:
                   - lambda:*
                   - logs:*
                   - sns:*
+                  - dynamodb:*
                 Resource: "*"
 
               - Effect: Allow
