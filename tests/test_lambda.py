@@ -47,3 +47,37 @@ def test_get_granules_updated_since(test_data_dir):
 
     assert resp1.call_count == 1
     assert resp2.call_count == 1
+
+
+def test_send_notification(sns_stubber):
+    sns_stubber.add_response(
+        method='publish',
+        expected_params={
+            'TopicArn': 'myTopic',
+            'Message': '{"granule-ur": "foo"}',
+        },
+        service_response={},
+    )
+    cmr_notifier.main.send_notification('myTopic', 'foo')
+
+
+def test_already_exists(db_stubber):
+    db_stubber.add_response(
+        method='get_item',
+        expected_params={
+            'TableName': 'myTable',
+            'Key': {'granule_ur': 'foo'},
+        },
+        service_response = {},
+    )
+    assert not cmr_notifier.main.already_exists('myTable', 'foo')
+
+    db_stubber.add_response(
+        method='get_item',
+        expected_params={
+            'TableName': 'myOtherTable',
+            'Key': {'granule_ur': 'bar'},
+        },
+        service_response = {'Item': {}},
+    )
+    assert cmr_notifier.main.already_exists('myOtherTable', 'bar')
