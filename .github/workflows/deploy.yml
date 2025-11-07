@@ -8,7 +8,6 @@ on:
 jobs:
   cloudformation-deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }}
     permissions:
       contents: read
       id-token: write
@@ -38,5 +37,5 @@ jobs:
   
           aws cloudformation deploy \
             --template-file packaged.yml \
-            --stack-name=${{ vars.STACK_NAME }} \
+            --stack-name=cmr-notifier-${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }} \
             --capabilities CAPABILITY_IAM
