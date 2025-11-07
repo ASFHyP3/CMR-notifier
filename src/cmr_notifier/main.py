@@ -8,7 +8,6 @@ import requests
 
 sns = boto3.client('sns')
 db = boto3.resource('dynamodb')
-table = boto3.resource('dynamodb')
 
 
 def already_exists(table_name: str, granule: str) -> bool:
