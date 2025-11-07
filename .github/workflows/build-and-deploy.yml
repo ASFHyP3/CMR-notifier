@@ -55,7 +55,7 @@ jobs:
       VERSION_TAG: ${{ needs.version-info.outputs.version_tag }}
       PLATFORMS: 'linux/amd64'
     outputs:
-      image_uri: ${{ steps.set_outputs.outputs.image_uri }}
+      image_uri: ${{ steps.set_outputs.outputs.IMAGE_URI }}
     steps:
       - uses: actions/checkout@v5
 
@@ -135,7 +135,7 @@ jobs:
         shell: bash
         run: |
           aws cloudformation deploy \
-            --template-file packaged.yml \
+            --template-file cloudformation.yml \
             --stack-name=cmr-notifier-${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }} \
             --capabilities CAPABILITY_IAM
             --parameter-overrides \
