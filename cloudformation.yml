@@ -56,6 +56,11 @@ Resources:
               - Effect: Allow
                 Action: sns:Publish
                 Resource: !Ref Topic
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                Resource: !Ref Topic
 
   Lambda:
     Type: AWS::Lambda::Function
@@ -63,6 +68,7 @@ Resources:
       Environment:
         Variables:
           TOPIC_ARN: !Ref Topic
+          TABLE_NAME: !Ref Table
           WINDOW_IN_SECONDS: 120
       Code: src/
       Handler: main.lambda_handler
@@ -93,6 +99,21 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt Schedule.Arn
+
+
+  Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 50
+        WriteCapacityUnits: 10
+      AttributeDefinitions:
+        - AttributeName: granule_ur
+          AttributeType: S
+      KeySchema:
+        - AttributeName: granule_ur
+          KeyType: HASH
 
 Outputs:
 
