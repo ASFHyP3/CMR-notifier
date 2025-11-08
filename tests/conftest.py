@@ -1,0 +1,25 @@
+from pathlib import Path
+
+import pytest
+from botocore.stub import Stubber
+
+from cmr_notifier.main import db, sns
+
+
+@pytest.fixture
+def test_data_dir():
+    return Path(__file__).parent / 'data'
+
+
+@pytest.fixture()
+def sns_stubber():
+    with Stubber(sns) as stubber:
+        yield stubber
+        stubber.assert_no_pending_responses()
+
+
+@pytest.fixture()
+def db_stubber():
+    with Stubber(db.meta.client) as stubber:
+        yield stubber
+        stubber.assert_no_pending_responses()

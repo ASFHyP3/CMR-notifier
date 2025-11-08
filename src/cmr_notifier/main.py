@@ -7,16 +7,16 @@ import requests
 
 
 sns = boto3.client('sns')
-table = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
+db = boto3.resource('dynamodb')
 
 
-def already_exists(granule: str) -> bool:
-    response = table.get_item(Key={'granule_ur': granule})
+def already_exists(table_name: str, granule: str) -> bool:
+    response = db.Table(table_name).get_item(Key={'granule_ur': granule})
     return 'Item' in response
 
 
-def put_item(granule: str) -> None:
-    table.put_item(Item={'granule_ur': granule})
+def put_item(table_name: str, granule: str) -> None:
+    db.Table(table_name).put_item(Item={'granule_ur': granule})
 
 
 def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
@@ -57,14 +57,14 @@ def send_notification(topic_arn: str, granule: str) -> None:
     )
 
 
-def send_notifications(topic_arn: str, window_in_seconds: int) -> None:
+def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) -> None:
     updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
     granules = get_granules_updated_since(updated_since)
     for granule in granules:
-        if not already_exists(granule):
+        if not already_exists(table_name, granule):
             send_notification(topic_arn, granule)
-            put_item(granule)
+            put_item(table_name, granule)
 
 
 def lambda_handler(event: dict, context: dict) -> None:
-    send_notifications(os.environ['TOPIC_ARN'], int(os.environ['WINDOW_IN_SECONDS']))
+    send_notifications(os.environ['TOPIC_ARN'], os.environ['TABLE_NAME'], int(os.environ['WINDOW_IN_SECONDS']))
