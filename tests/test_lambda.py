@@ -81,3 +81,15 @@ def test_already_exists(db_stubber):
         service_response = {'Item': {}},
     )
     assert cmr_notifier.main.already_exists('myOtherTable', 'bar')
+
+
+def test_put_item(db_stubber):
+    db_stubber.add_response(
+        method='put_item',
+        expected_params={
+            'TableName': 'myTable',
+            'Item': {'granule_ur': 'foo'},
+        },
+        service_response = {},
+    )
+    cmr_notifier.main.put_item('myTable', 'foo')
