@@ -49,7 +49,7 @@ def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
 
 def send_notification(topic_arn: str, granule: str) -> None:
     message = {
-        'granule-ur': granule,
+        'granule_ur': granule,
     }
     sns.publish(
         TopicArn=topic_arn,
