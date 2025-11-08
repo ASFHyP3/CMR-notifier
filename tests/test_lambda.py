@@ -3,7 +3,7 @@ from datetime import datetime
 import responses
 from responses import matchers
 
-import cmr_notifier
+from cmr_notifier import main
 
 
 @responses.activate
@@ -36,7 +36,7 @@ def test_get_granules_updated_since(test_data_dir):
     )
 
     updated_since = datetime(2025, 11, 7, 1, 23, 45)
-    assert cmr_notifier.main.get_granules_updated_since(updated_since) == [
+    assert main.get_granules_updated_since(updated_since) == [
         'S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC',
         'S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B-SLC',
         'S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0-SLC',
@@ -58,7 +58,7 @@ def test_send_notification(sns_stubber):
         },
         service_response={},
     )
-    cmr_notifier.main.send_notification('myTopic', 'foo')
+    main.send_notification('myTopic', 'foo')
 
 
 def test_already_exists(db_stubber):
@@ -70,7 +70,7 @@ def test_already_exists(db_stubber):
         },
         service_response={},
     )
-    assert not cmr_notifier.main.already_exists('myTable', 'foo')
+    assert not main.already_exists('myTable', 'foo')
 
     db_stubber.add_response(
         method='get_item',
@@ -80,7 +80,7 @@ def test_already_exists(db_stubber):
         },
         service_response={'Item': {}},
     )
-    assert cmr_notifier.main.already_exists('myOtherTable', 'bar')
+    assert main.already_exists('myOtherTable', 'bar')
 
 
 def test_put_item(db_stubber):
@@ -92,4 +92,4 @@ def test_put_item(db_stubber):
         },
         service_response={},
     )
-    cmr_notifier.main.put_item('myTable', 'foo')
+    main.put_item('myTable', 'foo')

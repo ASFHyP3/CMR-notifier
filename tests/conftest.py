@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 from botocore.stub import Stubber
-from cmr_notifier.main import sns, db
+
+from cmr_notifier.main import db, sns
 
 
 @pytest.fixture
