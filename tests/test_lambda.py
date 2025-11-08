@@ -23,14 +23,14 @@ def test_get_granules_updated_since(test_data_dir):
         url='https://cmr.earthdata.nasa.gov/search/granules.csv',
         match=[matchers.query_param_matcher(params)],
         body=(test_data_dir / 'cmr_response1.csv').read_text(),
-        headers={'CMR-Search-After': 'foo'}
+        headers={'CMR-Search-After': 'foo'},
     )
 
     resp2 = responses.get(
         url='https://cmr.earthdata.nasa.gov/search/granules.csv',
         match=[
             matchers.query_param_matcher(params),
-            matchers.header_matcher({'CMR-Search-After': 'foo'})
+            matchers.header_matcher({'CMR-Search-After': 'foo'}),
         ],
         body=(test_data_dir / 'cmr_response2.csv').read_text(),
     )
@@ -68,7 +68,7 @@ def test_already_exists(db_stubber):
             'TableName': 'myTable',
             'Key': {'granule_ur': 'foo'},
         },
-        service_response = {},
+        service_response={},
     )
     assert not cmr_notifier.main.already_exists('myTable', 'foo')
 
@@ -78,7 +78,7 @@ def test_already_exists(db_stubber):
             'TableName': 'myOtherTable',
             'Key': {'granule_ur': 'bar'},
         },
-        service_response = {'Item': {}},
+        service_response={'Item': {}},
     )
     assert cmr_notifier.main.already_exists('myOtherTable', 'bar')
 
@@ -90,6 +90,6 @@ def test_put_item(db_stubber):
             'TableName': 'myTable',
             'Item': {'granule_ur': 'foo'},
         },
-        service_response = {},
+        service_response={},
     )
     cmr_notifier.main.put_item('myTable', 'foo')
