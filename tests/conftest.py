@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import pytest
@@ -8,8 +7,7 @@ from cmr_notifier.main import sns, db
 
 @pytest.fixture
 def test_data_dir():
-    here = Path(os.path.dirname(__file__))
-    return here / 'data'
+    return Path(__file__).parent / 'data'
 
 
 @pytest.fixture()
