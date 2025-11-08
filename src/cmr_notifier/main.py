@@ -67,4 +67,4 @@ def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) 
 
 
 def lambda_handler(event: dict, context: dict) -> None:
-    send_notifications(os.environ['TOPIC_ARN'], os.environ['TABLE_NAME'], int(os.environ['WINDOW_IN_SECONDS']))
+    send_notifications(os.environ['TOPIC_ARN'], os.environ['TABLE_NAME'], event['window_in_seconds'])
