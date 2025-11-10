@@ -54,7 +54,7 @@ def test_send_notification(sns_stubber):
         method='publish',
         expected_params={
             'TopicArn': 'myTopic',
-            'Message': '{"granule-ur": "foo"}',
+            'Message': '{"granule_ur": "foo"}',
         },
         service_response={},
     )
