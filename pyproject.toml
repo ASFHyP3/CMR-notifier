@@ -26,6 +26,10 @@ develop = [
     'ruff==0.14.4',
     'setuptools_scm>=8',
     'types-requests',
+    'types-PySocks',
+    'types-PyYAML',
+    'types-Pygments',
+    'types-pexpect',
 ]
 
 [project.urls]
