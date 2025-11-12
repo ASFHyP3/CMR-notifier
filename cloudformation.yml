@@ -20,7 +20,9 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Action: sns:Subscribe
+            Action:
+              - sns:Subscribe
+              - sns:Receive
             Resource: !Ref Topic
             Principal:
               AWS: "*"
