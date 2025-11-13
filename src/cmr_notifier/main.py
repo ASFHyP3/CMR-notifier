@@ -19,7 +19,7 @@ def put_item(table_name: str, granule: str) -> None:
     db.Table(table_name).put_item(Item={'granule_ur': granule})
 
 
-def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
+def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[str]:
     session = requests.Session()
     url = 'https://cmr.earthdata.nasa.gov/search/granules.csv'
     params = {
@@ -38,8 +38,9 @@ def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
     while True:
         response = session.get(url, params=params, headers=headers)
         response.raise_for_status()
-        items = response.text.splitlines()[1:]
-        granules.extend([item.split(',')[0] for item in items])
+        for item in response.text.splitlines()[1:]:
+            granule_ur, _, _, _, access_urls, _, _, _, _ = item.split(',')
+            granules.append((granule_ur, access_urls))
 
         if 'CMR-Search-After' not in response.headers:
             break
@@ -47,10 +48,7 @@ def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
     return granules
 
 
-def send_notification(topic_arn: str, granule: str) -> None:
-    message = {
-        'granule_ur': granule,
-    }
+def send_notification(topic_arn:str, message: dict) -> None:
     sns.publish(
         TopicArn=topic_arn,
         Message=json.dumps(message),
@@ -59,11 +57,18 @@ def send_notification(topic_arn: str, granule: str) -> None:
 
 def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) -> None:
     updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
-    granules = get_granules_updated_since(updated_since)
-    for granule in granules:
-        if not already_exists(table_name, granule):
-            send_notification(topic_arn, granule)
-            put_item(table_name, granule)
+    records = get_granule_records_updated_since(updated_since)
+
+    for granule_ur, access_urls in records:
+
+        message = {
+            'granule_ur': granule_ur,
+            'access_urls': access_urls,
+        }
+
+        if not already_exists(table_name, granule_ur):
+            send_notification(topic_arn, message)
+            put_item(table_name, granule_ur)
 
 
 def lambda_handler(event: dict, context: dict) -> None:
