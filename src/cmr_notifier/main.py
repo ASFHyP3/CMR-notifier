@@ -19,7 +19,7 @@ def put_item(table_name: str, granule: str) -> None:
     db.Table(table_name).put_item(Item={'granule_ur': granule})
 
 
-def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[str]:
+def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[tuple[str, str]]:
     session = requests.Session()
     url = 'https://cmr.earthdata.nasa.gov/search/granules.csv'
     params = {
@@ -48,7 +48,7 @@ def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[
     return granules
 
 
-def send_notification(topic_arn:str, message: dict) -> None:
+def send_notification(topic_arn: str, message: dict) -> None:
     sns.publish(
         TopicArn=topic_arn,
         Message=json.dumps(message),
@@ -60,7 +60,6 @@ def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) 
     records = get_granule_records_updated_since(updated_since)
 
     for granule_ur, access_urls in records:
-
         message = {
             'granule_ur': granule_ur,
             'access_urls': access_urls,

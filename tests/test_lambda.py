@@ -37,9 +37,18 @@ def get_granule_records_updated_since(test_data_dir):
 
     updated_since = datetime(2025, 11, 7, 1, 23, 45)
     assert main.get_granule_records_updated_since(updated_since) == [
-        ('S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC', 'https://datapool.asf.alaska.edu/SLC/SC/S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A.zip'),
-        ('S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B-SLC', 'https://datapool.asf.alaska.edu/SLC/SC/S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B.zip'),
-        ('S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0-SLC', 'https://datapool.asf.alaska.edu/SLC/SC/S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0.zip'),
+        (
+            'S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC',
+            'https://datapool.asf.alaska.edu/SLC/SC/S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A.zip',
+        ),
+        (
+            'S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B-SLC',
+            'https://datapool.asf.alaska.edu/SLC/SC/S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B.zip',
+        ),
+        (
+            'S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0-SLC',
+            'https://datapool.asf.alaska.edu/SLC/SC/S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0.zip',
+        ),
         ('S1_301495_IW3_20141003T054235_VV_D5C8-BURST', ''),
         ('S1_301495_IW3_20141003T054235_VH_D5C8-BURST', ''),
         ('S1_301496_IW1_20141003T054236_VH_D5C8-BURST', ''),
@@ -60,8 +69,8 @@ def test_send_notification(sns_stubber):
     )
 
     message = {
-        'granule_ur': "foo",
-        'access_urls': "bar",
+        'granule_ur': 'foo',
+        'access_urls': 'bar',
     }
 
     main.send_notification('myTopic', message)
