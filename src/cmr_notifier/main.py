@@ -16,8 +16,8 @@ def already_exists(table_name: str, granule: str) -> bool:
     return 'Item' in response
 
 
-def put_item(table_name: str, granule: str) -> None:
-    db.Table(table_name).put_item(Item={'granule_ur': granule})
+def put_item(table_name: str, granule: str, sent_at: str) -> None:
+    db.Table(table_name).put_item(Item={'granule_ur': granule, 'sent_at': sent_at})
 
 
 def get_granule_records_updated_since(
@@ -71,7 +71,8 @@ def construct_metadata_url(granule_ur: str, cmr_provider: str, cmr_domain_name: 
 def send_notifications(
     topic_arn: str, table_name: str, window_in_seconds: int, cmr_provider: str, cmr_domain_name: str
 ) -> None:
-    updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
+    now = datetime.datetime.now(tz=datetime.UTC)
+    updated_since = now - datetime.timedelta(seconds=window_in_seconds)
     records = get_granule_records_updated_since(updated_since, cmr_provider, cmr_domain_name)
 
     for granule_ur, access_urls in records:
@@ -84,7 +85,7 @@ def send_notifications(
 
         if not already_exists(table_name, granule_ur):
             send_notification(topic_arn, message)
-            put_item(table_name, granule_ur)
+            put_item(table_name, granule_ur, sent_at=now.isoformat(timespec='seconds'))
 
 
 def lambda_handler(event: dict, context: dict) -> None:
