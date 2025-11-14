@@ -40,6 +40,7 @@ def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[
         response.raise_for_status()
         for item in response.text.splitlines()[1:]:
             granule_ur, _, _, _, access_urls, _, _, _, _ = item.split(',')
+            access_urls = access_urls.split(',') if access_urls else []
             granules.append((granule_ur, access_urls))
 
         if 'CMR-Search-After' not in response.headers:
