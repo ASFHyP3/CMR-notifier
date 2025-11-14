@@ -19,7 +19,7 @@ def put_item(table_name: str, granule: str) -> None:
     db.Table(table_name).put_item(Item={'granule_ur': granule})
 
 
-def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[tuple[str, str]]:
+def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[tuple[str, list]]:
     session = requests.Session()
     url = 'https://cmr.earthdata.nasa.gov/search/granules.csv'
     params = {
@@ -39,8 +39,8 @@ def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[
         response = session.get(url, params=params, headers=headers)
         response.raise_for_status()
         for item in response.text.splitlines()[1:]:
-            granule_ur, _, _, _, access_urls, _, _, _, _ = item.split(',')
-            access_urls = access_urls.split(',') if access_urls else []
+            granule_ur, _, _, _, access, _, _, _, _ = item.split(',')
+            access_urls: list = access.split(',') if access else []
             granules.append((granule_ur, access_urls))
 
         if 'CMR-Search-After' not in response.headers:
