@@ -95,6 +95,7 @@ platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64"]
 [tool.pixi.dependencies]
 # For PyCharm IDE integration
 pixi-pycharm = ">=0.0.8"
+uv = "*"
 
 # FIXME: this adds the editable install to the pixi lock file, but because we use setuptools_scm, the version
 #        number expected by pixi includes the commit hash and so the lockfile is almost never up to date. Need to
@@ -111,3 +112,5 @@ lint-py = "ruff check"
 format-py = "ruff format"
 type-py = {cmd = "mypy --exclude {{ mypy_excludes }} .", args = [{"arg" = "mypy_excludes", "default" = "_test"}]}
 static = [{task = "lint-cf"}, {task = "lint-py"}, {task = "format-py"}, {task = "type-py"}]
+dev-install = "uv pip install --no-deps -e ."
+tests = {cmd = 'pytest', depends-on = ["dev-install"]}

@@ -1,0 +1,30 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  pixi-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        pixi_task:
+          - tests
+    env:
+      AWS_SECRET_KEY_ID: foo
+      AWS_SECRET_ACCESS_KEY: bar
+      AWS_DEFAULT_REGION: us-west-2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: prefix-dev/setup-pixi@v0.9.3
+      - run: |
+          pixi run ${{ matrix.pixi_task }}
