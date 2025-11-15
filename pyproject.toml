@@ -22,6 +22,7 @@ develop = [
     'cfn-lint==1.40.4',
     'mypy==1.18.2',
     'pytest==9.0.0',
+    'pytest-env==1.2.0',
     'responses==0.25.8',
     'ruff==0.14.4',
     'setuptools_scm>=8',
@@ -87,6 +88,11 @@ non_interactive = true
 pretty = true
 disable_error_code = ["import-untyped"]
 
+[tool.pytest_env]
+AWS_SECRET_KEY_ID = {value = "foo", skip_if_set = true}
+AWS_SECRET_ACCESS_KEY = {value = "bar", skip_if_set = true}
+AWS_DEFAULT_REGION = {value = "us-west-2", skip_if_set = true}
+CMR_PROVIDER = {value = "ASF", skip_if_set = true}
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
