@@ -122,8 +122,8 @@ def test_put_item(db_stubber):
         method='put_item',
         expected_params={
             'TableName': 'myTable',
-            'Item': {'granule_ur': 'foo'},
+            'Item': {'granule_ur': 'foo', 'sent_at': 'now'},
         },
         service_response={},
     )
-    main.put_item('myTable', 'foo')
+    main.put_item('myTable', 'foo', sent_at='now')
