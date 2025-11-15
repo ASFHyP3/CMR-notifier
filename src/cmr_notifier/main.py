@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import urllib.parse
 
 import boto3
 import requests
@@ -56,13 +57,21 @@ def send_notification(topic_arn: str, message: dict) -> None:
     )
 
 
+def construct_metadata_url(provider: str, granule_ur: str) -> str:
+    query_params = urllib.parse.urlencode(locals())
+    cmr_base_url = 'https://cmr.earthdata.nasa.gov/search/granules.umm_json'
+    return f'{cmr_base_url}?{query_params}'
+
+
 def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) -> None:
     updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
     records = get_granule_records_updated_since(updated_since)
 
     for granule_ur, access_urls in records:
+        metadata_url = construct_metadata_url(provider=os.environ['CMR_PROVIDER'], granule_ur=granule_ur)
         message = {
             'granule_ur': granule_ur,
+            'metadata_url': metadata_url,
             'access_urls': access_urls,
         }
 

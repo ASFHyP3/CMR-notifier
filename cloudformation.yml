@@ -85,6 +85,7 @@ Resources:
         Variables:
           TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
+          CMR_PROVIDER: 'ASF'
       MemorySize: 128
       Role: !GetAtt Role.Arn
       Timeout: 900

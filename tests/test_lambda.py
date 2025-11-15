@@ -82,6 +82,13 @@ def test_send_notification(sns_stubber):
     main.send_notification('myTopic', message)
 
 
+def test_construct_metadata_url():
+    assert (
+        main.construct_metadata_url('asf', 'foo')
+        == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=asf&granule_ur=foo'
+    )
+
+
 def test_already_exists(db_stubber):
     db_stubber.add_response(
         method='get_item',
