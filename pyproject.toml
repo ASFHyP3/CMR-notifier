@@ -92,6 +92,7 @@ disable_error_code = ["import-untyped"]
 AWS_SECRET_KEY_ID = {value = "foo", skip_if_set = true}
 AWS_SECRET_ACCESS_KEY = {value = "bar", skip_if_set = true}
 AWS_DEFAULT_REGION = {value = "us-west-2", skip_if_set = true}
+CMR_SEARCH_URL = {value = "https://cmr.earthdata.nasa.gov/search/granules.umm_json", skip_if_set = true}
 CMR_PROVIDER = {value = "ASF", skip_if_set = true}
 
 [tool.pixi.workspace]

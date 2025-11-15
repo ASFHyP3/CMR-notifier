@@ -69,13 +69,14 @@ def test_send_notification(sns_stubber):
         method='publish',
         expected_params={
             'TopicArn': 'myTopic',
-            'Message': '{"granule_ur": "foo", "access_urls": ["bar"]}',
+            'Message': '{"granule_ur": "foo", "metadata_url": "fizz.buzz?granule_ur=foo", "access_urls": ["bar"]}',
         },
         service_response={},
     )
 
     message = {
         'granule_ur': 'foo',
+        'metadata_url': 'fizz.buzz?granule_ur=foo',
         'access_urls': ['bar'],
     }
 
@@ -84,8 +85,8 @@ def test_send_notification(sns_stubber):
 
 def test_construct_metadata_url():
     assert (
-        main.construct_metadata_url('asf', 'foo')
-        == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=asf&granule_ur=foo'
+        main.construct_metadata_url('foo')
+        == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=ASF&granule_ur=foo'
     )
 
 

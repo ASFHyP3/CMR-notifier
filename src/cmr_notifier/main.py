@@ -7,6 +7,9 @@ import boto3
 import requests
 
 
+CMR_SEARCH_URL = os.environ['CMR_SEARCH_URL']
+CMR_PROVIDER = os.environ['CMR_PROVIDER']
+
 sns = boto3.client('sns')
 db = boto3.resource('dynamodb')
 
@@ -57,10 +60,9 @@ def send_notification(topic_arn: str, message: dict) -> None:
     )
 
 
-def construct_metadata_url(provider: str, granule_ur: str) -> str:
-    query_params = urllib.parse.urlencode(locals())
-    cmr_base_url = 'https://cmr.earthdata.nasa.gov/search/granules.umm_json'
-    return f'{cmr_base_url}?{query_params}'
+def construct_metadata_url(granule_ur: str) -> str:
+    query_params = urllib.parse.urlencode({'provider': CMR_PROVIDER, 'granule_ur': granule_ur})
+    return f'{CMR_SEARCH_URL}?{query_params}'
 
 
 def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) -> None:
@@ -68,7 +70,7 @@ def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) 
     records = get_granule_records_updated_since(updated_since)
 
     for granule_ur, access_urls in records:
-        metadata_url = construct_metadata_url(provider=os.environ['CMR_PROVIDER'], granule_ur=granule_ur)
+        metadata_url = construct_metadata_url(granule_ur=granule_ur)
         message = {
             'granule_ur': granule_ur,
             'metadata_url': metadata_url,

@@ -86,6 +86,7 @@ Resources:
           TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
           CMR_PROVIDER: 'ASF'
+          CMR_SEARCH_URL: 'https://cmr.earthdata.nasa.gov/search/granules.umm_json'
       MemorySize: 128
       Role: !GetAtt Role.Arn
       Timeout: 900
