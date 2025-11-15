@@ -7,9 +7,6 @@ import boto3
 import requests
 
 
-CMR_SEARCH_URL = os.environ['CMR_SEARCH_URL']
-CMR_PROVIDER = os.environ['CMR_PROVIDER']
-
 sns = boto3.client('sns')
 db = boto3.resource('dynamodb')
 
@@ -23,14 +20,15 @@ def put_item(table_name: str, granule: str) -> None:
     db.Table(table_name).put_item(Item={'granule_ur': granule})
 
 
-def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[tuple[str, list]]:
+def get_granule_records_updated_since(
+    updated_since: datetime.datetime, cmr_provider: str, cmr_domain_name: str
+) -> list[tuple[str, list]]:
     session = requests.Session()
 
-    url = CMR_SEARCH_URL.replace('.umm_json', '.csv')
-    assert url.endswith('.csv')
+    url = f'https://{cmr_domain_name}/search/granules.csv'
 
     params = {
-        'provider': CMR_PROVIDER,
+        'provider': cmr_provider,
         'short_name': [
             'SENTINEL-1A_SLC',
             'SENTINEL-1B_SLC',
@@ -63,17 +61,21 @@ def send_notification(topic_arn: str, message: dict) -> None:
     )
 
 
-def construct_metadata_url(granule_ur: str) -> str:
-    query_params = urllib.parse.urlencode({'provider': CMR_PROVIDER, 'granule_ur': granule_ur})
-    return f'{CMR_SEARCH_URL}?{query_params}'
+def construct_metadata_url(granule_ur: str, cmr_provider: str, cmr_domain_name: str) -> str:
+    query_params = urllib.parse.urlencode(
+        {'provider': cmr_provider, 'granule_ur': granule_ur}, quote_via=urllib.parse.quote
+    )
+    return f'https://{cmr_domain_name}/search/granules.umm_json?{query_params}'
 
 
-def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) -> None:
+def send_notifications(
+    topic_arn: str, table_name: str, window_in_seconds: int, cmr_provider: str, cmr_domain_name: str
+) -> None:
     updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
-    records = get_granule_records_updated_since(updated_since)
+    records = get_granule_records_updated_since(updated_since, cmr_provider, cmr_domain_name)
 
     for granule_ur, access_urls in records:
-        metadata_url = construct_metadata_url(granule_ur=granule_ur)
+        metadata_url = construct_metadata_url(granule_ur, cmr_provider, cmr_domain_name)
         message = {
             'granule_ur': granule_ur,
             'metadata_url': metadata_url,
@@ -86,4 +88,10 @@ def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) 
 
 
 def lambda_handler(event: dict, context: dict) -> None:
-    send_notifications(os.environ['TOPIC_ARN'], os.environ['TABLE_NAME'], event['window_in_seconds'])
+    send_notifications(
+        topic_arn=os.environ['TOPIC_ARN'],
+        table_name=os.environ['TABLE_NAME'],
+        window_in_seconds=event['window_in_seconds'],
+        cmr_provider=os.environ['CMR_PROVIDER'],
+        cmr_domain_name=os.environ['CMR_DOMAIN_NAME'],
+    )

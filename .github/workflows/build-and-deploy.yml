@@ -140,5 +140,5 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               EcrImageUri=${{ needs.dockerize.outputs.image_uri }} \
-              CmrSearchUrl=${{ vars.CMR_SEARCH_URL }} \
+              CmrDomainName=${{ vars.CMR_DOMAIN_NAME }} \
               CmrProvider=${{ vars.CMR_PROVIDER }}

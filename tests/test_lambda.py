@@ -36,7 +36,7 @@ def get_granule_records_updated_since(test_data_dir):
     )
 
     updated_since = datetime(2025, 11, 7, 1, 23, 45)
-    assert main.get_granule_records_updated_since(updated_since) == [
+    assert main.get_granule_records_updated_since(updated_since, 'ASF', 'cmr.earthdata.nasa.gov') == [
         (
             'S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC',
             [
@@ -85,8 +85,13 @@ def test_send_notification(sns_stubber):
 
 def test_construct_metadata_url():
     assert (
-        main.construct_metadata_url('foo')
+        main.construct_metadata_url('foo', 'ASF', 'cmr.earthdata.nasa.gov')
         == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=ASF&granule_ur=foo'
+    )
+
+    assert (
+        main.construct_metadata_url('fizz:buzz/3', 'FOO BAR', 'cmr.earthdata.nasa.gov')
+        == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=FOO%20BAR&granule_ur=fizz%3Abuzz%2F3'
     )
 
 
