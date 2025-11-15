@@ -25,7 +25,7 @@ Resources:
     Properties:
       # Note: The only other parameter that requires replacement on update is FifoTopic, so this shan't be troublesome.
       #       See: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sns-topic.html
-      TopicName: !Sub '${CmrProvider}-Sentinel1-${AWS::StackName}'
+      TopicName: !Sub '${CmrProvider}-sentinel1-${AWS::StackName}'
 
   TopicPolicy:
     Type: AWS::SNS::TopicPolicy

@@ -1,21 +1,61 @@
 # CMR Notifier
 
-The CMR Notifier project provide AWS SNS topics applications can subscribe to for new granule notification for some of ASF's datasets which are used for monitoring applications. Currently, this repository provides:
+The CMR Notifier project provide AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides:
 
-* Sentinel-1 SLC Topic: TBD
-* Sentinel-1 Bursts Topic: TBD
+* New Sentinel-1 SLC and burst granules: `arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod`
+
+  which will broadcast messages like:
+  ```json
+  {
+    "granule_ur": "S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC",
+    "metadata_url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=ASF&granule_ur=S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC",
+    "access_urls": ["https://datapool.asf.alaska.edu/SLC/SC/S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A.zip"]
+  }
+  ```
 
 If you're interested in notification for another ASF-managed dataset, let us know by opening an issue: <https://github.com/ASFHyP3/CMR-notifier/issues/new>
 
-## Knowledge Base
+## Usage
 
-Currently, CMR Notifier uses CMR Ingest Subscriptions to as the source of new granule notifications:
-* https://wiki.earthdata.nasa.gov/spaces/CMR/pages/404522012/CMR+Ingest+Subscriptions
+The topics as listed above are public topics which only allow subscriptions using the AWS `SNS` and `Lambda` protocols. 
 
-> [!WARNING]
-> As documented in the [CMR API docs](https://cmr.earthdata.nasa.gov/ingest/site/docs/ingest/api.html#subscription), each AWS SQS queue should have only one agreed upon subscription!
+Here is an example of a minimal CloudFormation template, which when deployed, will create a Sentinel-1 subscription for new for an AWS SQS Queue:
+```yaml
+Parameters:
+  QueueArn:
+    Type: String
 
-## Setup
+Resources:
+  Sentinel1Subscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod
+      Protocol: sqs
+      Endpoint: !Ref QueueArn
+```
+
+You can add a `FilterPolicy` to the subscription properties so that only the messages you are interested in are accepted:
+<https://docs.aws.amazon.com/sns/latest/dg/sns-subscription-filter-policies.html>
+
+For example, this policy will only accept Sentinel-1 Bursts messages: 
+```yaml
+      FilterPolicyScope: MessageBody
+      FilterPolicy: |
+        {
+          "granule_ur": [{"suffix": "-BURST"}]
+        }
+```
+
+Or, this policy will only accept Sentinel-1C SLC messages:
+```yaml
+      FilterPolicyScope: MessageBody
+      FilterPolicy: |
+        {
+          "granule_ur": [{"prefix": "S1C_"}, {"suffix": "-SLC"}]
+        }
+```
+
+## Development
 
 This project uses `pixi` to manage software environments. To get started: 
 
@@ -46,9 +86,15 @@ This project uses `pixi` to manage software environments. To get started:
    * VSCode: https://pixi.sh/dev/integration/editor/vscode/
 
 
-## Usage
+### Tasks
 
 We use `pixi` as a task runner (similar to a `make`). To see all available tasks, run:
 ```bash
 pixi task list
+```
+
+When developing a new feature, you can ensure the code passes all static analyses and tests by running:
+```bash
+pixi run static
+pixi run tests
 ```
