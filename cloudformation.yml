@@ -5,6 +5,14 @@ Parameters:
     Description: ECR image URI
     Type: String
 
+  CmrSearchUrl:
+    Description: CMR granule search URL
+    Type: String
+
+  CmrProvider:
+    Description: CMR provider to use when searching for new granules
+    Type: String
+
 Resources:
 
   # TODO: Nice name?
@@ -85,8 +93,8 @@ Resources:
         Variables:
           TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
-          CMR_PROVIDER: 'ASF'
-          CMR_SEARCH_URL: 'https://cmr.earthdata.nasa.gov/search/granules.umm_json'
+          CMR_SEARCH_URL: !Ref CmrSearchUrl
+          CMR_PROVIDER: !Ref CmrProvider
       MemorySize: 128
       Role: !GetAtt Role.Arn
       Timeout: 900

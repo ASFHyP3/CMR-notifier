@@ -25,9 +25,12 @@ def put_item(table_name: str, granule: str) -> None:
 
 def get_granule_records_updated_since(updated_since: datetime.datetime) -> list[tuple[str, list]]:
     session = requests.Session()
-    url = 'https://cmr.earthdata.nasa.gov/search/granules.csv'
+
+    url = CMR_SEARCH_URL.replace('.umm_json', '.csv')
+    assert url.endswith('.csv')
+
     params = {
-        'provider': 'ASF',
+        'provider': CMR_PROVIDER,
         'short_name': [
             'SENTINEL-1A_SLC',
             'SENTINEL-1B_SLC',

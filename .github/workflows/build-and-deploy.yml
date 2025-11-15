@@ -139,4 +139,6 @@ jobs:
             --stack-name=cmr-notifier-${{ github.ref == 'refs/heads/main' && 'prod' || 'test' }} \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
-              EcrImageUri=${{ needs.dockerize.outputs.image_uri }}
+              EcrImageUri=${{ needs.dockerize.outputs.image_uri }} \
+              CmrSearchUrl=${{ vars.CMR_SEARCH_URL }} \
+              CmrProvider=${{ vars.CMR_PROVIDER }}
