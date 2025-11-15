@@ -1,6 +1,6 @@
 # CMR Notifier
 
-The CMR Notifier project provide AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides:
+The CMR Notifier project provide AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides these topics:
 
 * New Sentinel-1 SLC and burst granules: `arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod`
 
@@ -13,13 +13,14 @@ The CMR Notifier project provide AWS SNS Topics that monitoring applications can
   }
   ```
 
-If you're interested in notification for another ASF-managed dataset, let us know by opening an issue: <https://github.com/ASFHyP3/CMR-notifier/issues/new>
+>[!TIP]
+> If you're interested in notification for another ASF-managed dataset, let us know by opening an issue: <https://github.com/ASFHyP3/CMR-notifier/issues/new>
 
 ## Usage
 
-The topics as listed above are public topics which only allow subscriptions using the AWS `SNS` and `Lambda` protocols. 
+The topics listed above are public topics that only allow subscriptions using the AWS `SNS` and `Lambda` protocols. 
 
-Here is an example of a minimal CloudFormation template, which when deployed, will create a Sentinel-1 subscription for new for an AWS SQS Queue:
+Here is an example of a minimal CloudFormation template, which when deployed, will create a Sentinel-1 subscription for an AWS SQS Queue:
 ```yaml
 Parameters:
   QueueArn:
