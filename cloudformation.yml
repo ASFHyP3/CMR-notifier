@@ -139,9 +139,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: granule_ur
           AttributeType: S
+        - AttributeName: sent_at
+          AttributeType: S
       KeySchema:
         - AttributeName: granule_ur
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: sent_at
+          KeySchema:
+            - AttributeName: sent_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
 Outputs:
 
