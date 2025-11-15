@@ -1,6 +1,6 @@
 # CMR Notifier
 
-The CMR Notifier project provide AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides these topics:
+The CMR Notifier project provide public AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides these topics:
 
 * New Sentinel-1 SLC and burst granules: `arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod`
 
@@ -18,7 +18,8 @@ The CMR Notifier project provide AWS SNS Topics that monitoring applications can
 
 ## Usage
 
-The topics listed above are public topics that only allow subscriptions using the AWS `SNS` and `Lambda` protocols. 
+>[!IMPORTANT]
+> The topics provided here only allow subscriptions using the AWS `SNS` and `Lambda` protocols. 
 
 Here is an example of a minimal CloudFormation template, which when deployed, will create a Sentinel-1 subscription for an AWS SQS Queue:
 ```yaml
@@ -80,8 +81,8 @@ This project uses `pixi` to manage software environments. To get started:
       eval "$(pixi shell-hook)"
       ```
 
-    >    [!TIP]
-    >    If you've done (4), you don't need to prefix commands with `pixi run`.
+    > [!TIP]
+    > If you've done (4), you don't need to prefix commands with `pixi run`.
 5. (optional) Setup you IDE to work with pixi:
    * PyCharm: https://pixi.sh/dev/integration/editor/jetbrains/
    * VSCode: https://pixi.sh/dev/integration/editor/vscode/
