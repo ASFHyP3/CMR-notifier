@@ -5,13 +5,18 @@ Parameters:
     Description: ECR image URI
     Type: String
 
-  CmrSearchUrl:
+  CmrDomain:
     Description: CMR granule search URL
     Type: String
+    Default: cmr.earthdata.nasa.gov
+    AllowedValues:
+      - cmr.earthdata.nasa.gov
+      - cmr.uat.earthdata.nasa.gov
 
   CmrProvider:
     Description: CMR provider to use when searching for new granules
     Type: String
+Default: ASF
 
 Resources:
 
