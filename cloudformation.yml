@@ -144,13 +144,8 @@ Resources:
       KeySchema:
         - AttributeName: granule_ur
           KeyType: HASH
-      GlobalSecondaryIndexes:
-        - IndexName: sent_at
-          KeySchema:
-            - AttributeName: sent_at
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
+        - AttributeName: sent_at
+          KeyType: RANGE
 
 Outputs:
 
