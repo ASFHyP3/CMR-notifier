@@ -9,4 +9,4 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0]
 
 ### Added
-- Sentinel-1 SLC and Sentinel-1 Burst notification topics
+- A Sentinel-1 SLC and Sentinel-1 Burst notification topic
