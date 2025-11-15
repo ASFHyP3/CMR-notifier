@@ -2,8 +2,11 @@
 
 The CMR Notifier project provide public AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides these topics:
 
-* New Sentinel-1 SLC and burst granules: `arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod`
-
+* New Sentinel-1 SLC and burst granules:
+  ```
+  arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod`
+  ```
+  
   which will broadcast messages like:
   ```json
   {
