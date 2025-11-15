@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import urllib.parse
 
 import boto3
 import requests
@@ -19,11 +20,15 @@ def put_item(table_name: str, granule: str) -> None:
     db.Table(table_name).put_item(Item={'granule_ur': granule})
 
 
-def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
+def get_granule_records_updated_since(
+    updated_since: datetime.datetime, cmr_provider: str, cmr_domain_name: str
+) -> list[tuple[str, list]]:
     session = requests.Session()
-    url = 'https://cmr.earthdata.nasa.gov/search/granules.csv'
+
+    url = f'https://{cmr_domain_name}/search/granules.csv'
+
     params = {
-        'provider': 'ASF',
+        'provider': cmr_provider,
         'short_name': [
             'SENTINEL-1A_SLC',
             'SENTINEL-1B_SLC',
@@ -38,8 +43,10 @@ def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
     while True:
         response = session.get(url, params=params, headers=headers)
         response.raise_for_status()
-        items = response.text.splitlines()[1:]
-        granules.extend([item.split(',')[0] for item in items])
+        for item in response.text.splitlines()[1:]:
+            granule_ur, _, _, _, access, _, _, _, _ = item.split(',')
+            access_urls: list = access.split(',') if access else []
+            granules.append((granule_ur, access_urls))
 
         if 'CMR-Search-After' not in response.headers:
             break
@@ -47,24 +54,44 @@ def get_granules_updated_since(updated_since: datetime.datetime) -> list[str]:
     return granules
 
 
-def send_notification(topic_arn: str, granule: str) -> None:
-    message = {
-        'granule_ur': granule,
-    }
+def send_notification(topic_arn: str, message: dict) -> None:
     sns.publish(
         TopicArn=topic_arn,
         Message=json.dumps(message),
     )
 
 
-def send_notifications(topic_arn: str, table_name: str, window_in_seconds: int) -> None:
+def construct_metadata_url(granule_ur: str, cmr_provider: str, cmr_domain_name: str) -> str:
+    query_params = urllib.parse.urlencode(
+        {'provider': cmr_provider, 'granule_ur': granule_ur}, quote_via=urllib.parse.quote
+    )
+    return f'https://{cmr_domain_name}/search/granules.umm_json?{query_params}'
+
+
+def send_notifications(
+    topic_arn: str, table_name: str, window_in_seconds: int, cmr_provider: str, cmr_domain_name: str
+) -> None:
     updated_since = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(seconds=window_in_seconds)
-    granules = get_granules_updated_since(updated_since)
-    for granule in granules:
-        if not already_exists(table_name, granule):
-            send_notification(topic_arn, granule)
-            put_item(table_name, granule)
+    records = get_granule_records_updated_since(updated_since, cmr_provider, cmr_domain_name)
+
+    for granule_ur, access_urls in records:
+        metadata_url = construct_metadata_url(granule_ur, cmr_provider, cmr_domain_name)
+        message = {
+            'granule_ur': granule_ur,
+            'metadata_url': metadata_url,
+            'access_urls': access_urls,
+        }
+
+        if not already_exists(table_name, granule_ur):
+            send_notification(topic_arn, message)
+            put_item(table_name, granule_ur)
 
 
 def lambda_handler(event: dict, context: dict) -> None:
-    send_notifications(os.environ['TOPIC_ARN'], os.environ['TABLE_NAME'], event['window_in_seconds'])
+    send_notifications(
+        topic_arn=os.environ['TOPIC_ARN'],
+        table_name=os.environ['TABLE_NAME'],
+        window_in_seconds=event['window_in_seconds'],
+        cmr_provider=os.environ['CMR_PROVIDER'],
+        cmr_domain_name=os.environ['CMR_DOMAIN_NAME'],
+    )

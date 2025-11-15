@@ -7,7 +7,7 @@ from cmr_notifier import main
 
 
 @responses.activate
-def test_get_granules_updated_since(test_data_dir):
+def get_granule_records_updated_since(test_data_dir):
     params = {
         'provider': 'ASF',
         'short_name': [
@@ -36,13 +36,28 @@ def test_get_granules_updated_since(test_data_dir):
     )
 
     updated_since = datetime(2025, 11, 7, 1, 23, 45)
-    assert main.get_granules_updated_since(updated_since) == [
-        'S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC',
-        'S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B-SLC',
-        'S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0-SLC',
-        'S1_301495_IW3_20141003T054235_VV_D5C8-BURST',
-        'S1_301495_IW3_20141003T054235_VH_D5C8-BURST',
-        'S1_301496_IW1_20141003T054236_VH_D5C8-BURST',
+    assert main.get_granule_records_updated_since(updated_since, 'ASF', 'cmr.earthdata.nasa.gov') == [
+        (
+            'S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC',
+            [
+                'https://datapool.asf.alaska.edu/SLC/SC/S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A.zip'
+            ],
+        ),
+        (
+            'S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B-SLC',
+            [
+                'https://datapool.asf.alaska.edu/SLC/SC/S1C_IW_SLC__1SDV_20250328T121704_20250328T121731_001641_002A52_DF8B.zip'
+            ],
+        ),
+        (
+            'S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0-SLC',
+            [
+                'https://datapool.asf.alaska.edu/SLC/SC/S1C_IW_SLC__1SDV_20250328T150900_20250328T150928_001643_002A70_B8D0.zip'
+            ],
+        ),
+        ('S1_301495_IW3_20141003T054235_VV_D5C8-BURST', []),
+        ('S1_301495_IW3_20141003T054235_VH_D5C8-BURST', []),
+        ('S1_301496_IW1_20141003T054236_VH_D5C8-BURST', []),
     ]
 
     assert resp1.call_count == 1
@@ -54,11 +69,30 @@ def test_send_notification(sns_stubber):
         method='publish',
         expected_params={
             'TopicArn': 'myTopic',
-            'Message': '{"granule_ur": "foo"}',
+            'Message': '{"granule_ur": "foo", "metadata_url": "fizz.buzz?granule_ur=foo", "access_urls": ["bar"]}',
         },
         service_response={},
     )
-    main.send_notification('myTopic', 'foo')
+
+    message = {
+        'granule_ur': 'foo',
+        'metadata_url': 'fizz.buzz?granule_ur=foo',
+        'access_urls': ['bar'],
+    }
+
+    main.send_notification('myTopic', message)
+
+
+def test_construct_metadata_url():
+    assert (
+        main.construct_metadata_url('foo', 'ASF', 'cmr.earthdata.nasa.gov')
+        == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=ASF&granule_ur=foo'
+    )
+
+    assert (
+        main.construct_metadata_url('fizz:buzz/3', 'FOO BAR', 'cmr.earthdata.nasa.gov')
+        == 'https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=FOO%20BAR&granule_ur=fizz%3Abuzz%2F3'
+    )
 
 
 def test_already_exists(db_stubber):

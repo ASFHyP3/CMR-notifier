@@ -5,6 +5,19 @@ Parameters:
     Description: ECR image URI
     Type: String
 
+  CmrDomainName:
+    Description: CMR search API domain name
+    Type: String
+    Default: cmr.earthdata.nasa.gov
+    AllowedValues:
+      - cmr.earthdata.nasa.gov
+      - cmr.uat.earthdata.nasa.gov
+
+  CmrProvider:
+    Description: CMR provider to use when searching for new granules
+    Type: String
+    Default: ASF
+
 Resources:
 
   # TODO: Nice name?
@@ -85,6 +98,8 @@ Resources:
         Variables:
           TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
+          CMR_DOMAIN_NAME: !Ref CmrDomainName
+          CMR_PROVIDER: !Ref CmrProvider
       MemorySize: 128
       Role: !GetAtt Role.Arn
       Timeout: 900
