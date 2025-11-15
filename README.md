@@ -19,7 +19,7 @@ The CMR Notifier project provide public AWS SNS Topics that monitoring applicati
 ## Usage
 
 >[!IMPORTANT]
-> The topics provided here only allow subscriptions using the AWS SNS and Lambda protocols. 
+> The topics provided here only allow subscriptions using the AWS SQS and Lambda protocols. 
 
 Here is an example of a minimal CloudFormation template, which when deployed, will create a Sentinel-1 subscription for an AWS SQS Queue:
 ```yaml
