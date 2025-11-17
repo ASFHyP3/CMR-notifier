@@ -1,6 +1,6 @@
 # CMR Notifier
 
-The CMR Notifier project provide public AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides these topics:
+The CMR Notifier project provides public AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides this topic:
 
 * New Sentinel-1 SLC and burst granules:
   ```
