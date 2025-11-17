@@ -45,19 +45,18 @@ You can add a `FilterPolicy` to the subscription properties so that only the mes
 For example, this policy will only accept Sentinel-1 Bursts messages: 
 ```yaml
       FilterPolicyScope: MessageBody
-      FilterPolicy: |
-        {
-          "granule_ur": [{"suffix": "-BURST"}]
-        }
+      FilterPolicy:
+        granule_ur:
+          - suffix: '-BURST'
 ```
 
 Or, this policy will only accept Sentinel-1C SLC messages:
 ```yaml
       FilterPolicyScope: MessageBody
-      FilterPolicy: |
-        {
-          "granule_ur": [{"prefix": "S1C_"}, {"suffix": "-SLC"}]
-        }
+      FilterPolicy:
+        granule_ur:
+          - prefix: 'S1C_'
+          - suffix: '-SLC'
 ```
 
 ## Development
