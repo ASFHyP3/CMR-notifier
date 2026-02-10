@@ -44,7 +44,7 @@ def get_granule_records_updated_since(
             'NISAR_L1_RSLC_V1',
             'NISAR_L1_RUNW_V1',
             'NISAR_L1_RIFG_V1',
-            'NISAR_L3_SME2_V1'
+            'NISAR_L3_SME2_V1',
         ],
         'created_at': f'{updated_since.isoformat()},',
         'page_size': '2000',
