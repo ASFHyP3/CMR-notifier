@@ -8,7 +8,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.0]
 ### Added 
-- Notification topics for NISAR products
+- Notification topic for NISAR products
 
 ## [0.1.2]
 
