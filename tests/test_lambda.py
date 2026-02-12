@@ -4,29 +4,15 @@ import responses
 from responses import matchers
 
 from cmr_notifier import main
+from cmr_notifier.main import NISAR_SHORTNAMES, SENTINEL1_SHORTNAMES
 
 
 @responses.activate
 def test_get_granule_records_updated_since(test_data_dir):
+    short_names = SENTINEL1_SHORTNAMES + NISAR_SHORTNAMES
     params = {
         'provider': 'ASF',
-        'short_name': [
-            'SENTINEL-1A_SLC',
-            'SENTINEL-1B_SLC',
-            'SENTINEL-1C_SLC',
-            'SENTINEL-1_BURSTS',
-            'NISAR_L0A_RRST_V1',
-            'NISAR_L0B_RRSD_V1',
-            'NISAR_L2_GOFF_V1',
-            'NISAR_L2_GCOV_V1',
-            'NISAR_L2_GSLC_V1',
-            'NISAR_L2_GUNW_V1',
-            'NISAR_L1_ROFF_V1',
-            'NISAR_L1_RSLC_V1',
-            'NISAR_L1_RUNW_V1',
-            'NISAR_L1_RIFG_V1',
-            'NISAR_L3_SME2_V1',
-        ],
+        'short_name': short_names,
         'created_at': '2025-11-01T01:23:45,',
         'page_size': '2000',
     }
@@ -36,7 +22,6 @@ def test_get_granule_records_updated_since(test_data_dir):
         body=(test_data_dir / 'cmr_response1.csv').read_text(),
         headers={'CMR-Search-After': 'foo'},
     )
-
     resp2 = responses.get(
         url='https://cmr.earthdata.nasa.gov/search/granules.csv',
         match=[
@@ -47,7 +32,9 @@ def test_get_granule_records_updated_since(test_data_dir):
     )
 
     updated_since = datetime(2025, 11, 1, 1, 23, 45)
-    assert main.get_granule_records_updated_since(updated_since, 'ASF', 'cmr.earthdata.nasa.gov') == [
+    results = main.get_granule_records_updated_since(updated_since, 'ASF', 'cmr.earthdata.nasa.gov', short_names)
+
+    assert results == [
         (
             'S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC',
             [

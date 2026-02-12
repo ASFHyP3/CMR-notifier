@@ -20,24 +20,24 @@ Parameters:
 
 Resources:
 
-  Topic:
+  Sentinel1Topic:
     Type: AWS::SNS::Topic
     Properties:
       # Note: The only other parameter that requires replacement on update is FifoTopic, so this shan't be troublesome.
       #       See: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sns-topic.html
       TopicName: !Sub '${CmrProvider}-sentinel1-${AWS::StackName}'
 
-  TopicPolicy:
+  Sentinel1TopicPolicy:
     Type: AWS::SNS::TopicPolicy
     Properties:
       Topics:
-        - !Ref Topic
+        - !Ref Sentinel1Topic
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Action: sns:Subscribe
-            Resource: !Ref Topic
+            Resource: !Ref Sentinel1Topic
             Principal:
               AWS: "*"
             Condition:
@@ -46,10 +46,42 @@ Resources:
                   - sqs
                   - lambda
 
-  LogGroup:
+  NisarTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      # Note: The only other parameter that requires replacement on update is FifoTopic, so this shan't be troublesome.
+      #       See: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sns-topic.html
+      TopicName: !Sub '${CmrProvider}-nisar-${AWS::StackName}'
+
+  NisarTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref NisarTopic
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sns:Subscribe
+            Resource: !Ref NisarTopic
+            Principal:
+              AWS: "*"
+            Condition:
+              StringEquals:
+                SNS:Protocol:
+                  - sqs
+                  - lambda
+
+  Sentinel1LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${Lambda}"
+      LogGroupName: !Sub "/aws/lambda/${Sentinel1Lambda}"
+      RetentionInDays: 90
+
+  NisarLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${NisarLambda}"
       RetentionInDays: 90
 
   Role:
@@ -74,7 +106,9 @@ Resources:
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
               - Effect: Allow
                 Action: sns:Publish
-                Resource: !Ref Topic
+                Resource: 
+                  - !Ref Sentinel1Topic
+                  - !Ref NisarTopic
               - Effect: Allow
                 Action:
                   - dynamodb:GetItem
@@ -88,7 +122,7 @@ Resources:
                   - ecr:GetDownloadUrlForLayer
                 Resource: !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
 
-  Lambda:
+  Sentinel1Lambda:
     Type: AWS::Lambda::Function
     Properties:
       PackageType: Image
@@ -99,7 +133,7 @@ Resources:
         ImageUri: !Ref EcrImageUri
       Environment:
         Variables:
-          TOPIC_ARN: !Ref Topic
+          TOPIC_ARN: !Ref Sentinel1Topic
           TABLE_NAME: !Ref Table
           CMR_DOMAIN_NAME: !Ref CmrDomainName
           CMR_PROVIDER: !Ref CmrProvider
@@ -107,30 +141,72 @@ Resources:
       Role: !GetAtt Role.Arn
       Timeout: 900
 
-  EventInvokeConfig:
+  NisarLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      PackageType: Image
+      ImageConfig:
+        Command:
+          - cmr_notifier.main.lambda_handler
+      Code:
+        ImageUri: !Ref EcrImageUri
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref NisarTopic
+          TABLE_NAME: !Ref Table
+          CMR_DOMAIN_NAME: !Ref CmrDomainName
+          CMR_PROVIDER: !Ref CmrProvider
+      MemorySize: 128
+      Role: !GetAtt Role.Arn
+      Timeout: 900
+
+  Sentinel1EventInvokeConfig:
     Type: AWS::Lambda::EventInvokeConfig
     Properties:
-      FunctionName: !Ref Lambda
+      FunctionName: !Ref Sentinel1Lambda
       Qualifier: $LATEST
       MaximumRetryAttempts: 0
 
-  Schedule:
+  Sentinel1Schedule:
     Type: AWS::Events::Rule
     Properties:
       ScheduleExpression: "rate(1 minute)"
       Targets:
-        - Arn: !GetAtt Lambda.Arn
+        - Arn: !GetAtt Sentinel1Lambda.Arn
           Id: schedule
           Input: '{"window_in_seconds": 120}'
 
-  EventPermission:
+  Sentinel1EventPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !GetAtt Lambda.Arn
+      FunctionName: !GetAtt Sentinel1Lambda.Arn
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt Schedule.Arn
+      SourceArn: !GetAtt Sentinel1Schedule.Arn
 
+  NisarEventInvokeConfig:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties:
+      FunctionName: !Ref NisarLambda
+      Qualifier: $LATEST
+      MaximumRetryAttempts: 0
+
+  NisarSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression: "rate(1 minute)"
+      Targets:
+        - Arn: !GetAtt NisarLambda.Arn
+          Id: schedule
+          Input: '{"window_in_seconds": 120}'
+
+  NisarEventPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt NisarLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt NisarSchedule.Arn
 
   Table:
     Type: AWS::DynamoDB::Table
@@ -147,7 +223,9 @@ Resources:
           KeyType: HASH
 
 Outputs:
-
-  TopicArn:
-    Description: ARN of the SNS Topic
-    Value: !Ref Topic
+  Sentinel1TopicArn:
+    Description: ARN of the Sentinel-1 SNS Topic
+    Value: !Ref Sentinel1Topic
+  NisarTopicArn:
+    Description: ARN of the NISAR SNS Topic
+    Value: !Ref NisarTopic
