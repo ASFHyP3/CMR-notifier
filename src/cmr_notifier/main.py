@@ -11,6 +11,47 @@ sns = boto3.client('sns')
 db = boto3.resource('dynamodb')
 
 
+SENTINEL1_SHORTNAMES = [
+    'SENTINEL-1A_SLC',
+    'SENTINEL-1B_SLC',
+    'SENTINEL-1C_SLC',
+    'SENTINEL-1_BURSTS',
+]
+
+NISAR_SHORTNAMES = [
+    'NISAR_L0B_RRSD_BETA_V1',
+    'NISAR_L0B_RRSD_PROVISIONAL_V1',
+    'NISAR_L0B_RRSD_V1',
+    'NISAR_L1_RIFG_BETA_V1',
+    'NISAR_L1_RIFG_PROVISIONAL_V1',
+    'NISAR_L1_RIFG_V1',
+    'NISAR_L1_ROFF_BETA_V1',
+    'NISAR_L1_ROFF_PROVISIONAL_V1',
+    'NISAR_L1_ROFF_V1',
+    'NISAR_L1_RSLC_BETA_V1',
+    'NISAR_L1_RSLC_PROVISIONAL_V1',
+    'NISAR_L1_RSLC_V1',
+    'NISAR_L1_RUNW_BETA_V1',
+    'NISAR_L1_RUNW_PROVISIONAL_V1',
+    'NISAR_L1_RUNW_V1',
+    'NISAR_L2_GCOV_BETA_V1',
+    'NISAR_L2_GCOV_PROVISIONAL_V1',
+    'NISAR_L2_GCOV_V1',
+    'NISAR_L2_GOFF_BETA_V1',
+    'NISAR_L2_GOFF_PROVISIONAL_V1',
+    'NISAR_L2_GOFF_V1',
+    'NISAR_L2_GSLC_BETA_V1',
+    'NISAR_L2_GSLC_PROVISIONAL_V1',
+    'NISAR_L2_GSLC_V1',
+    'NISAR_L2_GUNW_BETA_V1',
+    'NISAR_L2_GUNW_PROVISIONAL_V1',
+    'NISAR_L2_GUNW_V1',
+    'NISAR_L3_SME2_BETA_V1',
+    'NISAR_L3_SME2_PROVISIONAL_V1',
+    'NISAR_L3_SME2_V1',
+]
+
+
 def already_exists(table_name: str, granule: str) -> bool:
     response = db.Table(table_name).get_item(Key={'granule_ur': granule})
     return 'Item' in response
@@ -21,7 +62,10 @@ def put_item(table_name: str, granule: str, sent_at: str) -> None:
 
 
 def get_granule_records_updated_since(
-    updated_since: datetime.datetime, cmr_provider: str, cmr_domain_name: str
+    updated_since: datetime.datetime,
+    cmr_provider: str,
+    cmr_domain_name: str,
+    short_names: list[str],
 ) -> list[tuple[str, list]]:
     session = requests.Session()
 
@@ -29,12 +73,7 @@ def get_granule_records_updated_since(
 
     params = {
         'provider': cmr_provider,
-        'short_name': [
-            'SENTINEL-1A_SLC',
-            'SENTINEL-1B_SLC',
-            'SENTINEL-1C_SLC',
-            'SENTINEL-1_BURSTS',
-        ],
+        'short_name': short_names,
         'created_at': f'{updated_since.isoformat()},',
         'page_size': '2000',
     }
@@ -71,9 +110,10 @@ def construct_metadata_url(granule_ur: str, cmr_provider: str, cmr_domain_name: 
 def send_notifications(
     topic_arn: str, table_name: str, window_in_seconds: int, cmr_provider: str, cmr_domain_name: str
 ) -> None:
+    short_names = SENTINEL1_SHORTNAMES if 'sentinel1' in topic_arn else NISAR_SHORTNAMES
     now = datetime.datetime.now(tz=datetime.UTC)
     updated_since = now - datetime.timedelta(seconds=window_in_seconds)
-    records = get_granule_records_updated_since(updated_since, cmr_provider, cmr_domain_name)
+    records = get_granule_records_updated_since(updated_since, cmr_provider, cmr_domain_name, short_names)
 
     for granule_ur, access_urls in records:
         metadata_url = construct_metadata_url(granule_ur, cmr_provider, cmr_domain_name)
