@@ -146,4 +146,4 @@ jobs:
               EcrImageUri=${{ needs.dockerize.outputs.image_uri }} \
               CmrDomainName=${{ vars.CMR_DOMAIN_NAME }} \
               CmrProvider=${{ vars.CMR_PROVIDER }} \
-              TopicName= ${{ vars.TOPIC_PREFIX }}-${{ matrix.maturity }}
+              TopicName=${{ vars.TOPIC_PREFIX }}-${{ matrix.maturity }}
