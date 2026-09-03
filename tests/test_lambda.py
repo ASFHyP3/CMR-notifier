@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import responses
 from responses import matchers
@@ -13,7 +13,7 @@ def test_get_granule_records_updated_since(test_data_dir):
     params = {
         'provider': 'ASF',
         'short_name': short_names,
-        'created_at': '2025-11-01T01:23:45,',
+        'created_at': '2025-11-01T01:23:45+00:00,',
         'page_size': '2000',
     }
     resp1 = responses.get(
@@ -31,7 +31,7 @@ def test_get_granule_records_updated_since(test_data_dir):
         body=(test_data_dir / 'cmr_response2.csv').read_text(),
     )
 
-    updated_since = datetime(2025, 11, 1, 1, 23, 45)
+    updated_since = datetime(2025, 11, 1, 1, 23, 45, tzinfo=UTC)
     results = main.get_granule_records_updated_since(updated_since, 'ASF', 'cmr.earthdata.nasa.gov', short_names)
 
     assert results == [
