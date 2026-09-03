@@ -108,9 +108,12 @@ jobs:
 
 
   deploy:
+    strategy:
+      matrix:
+        dataset: ['sentinel1', 'nisar']
     if: ${{ github.event_name != 'pull_request' }}
     concurrency:
-      group: deploy-${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }}
+      group: deploy-${{ matrix.dataset }}-${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }}
     runs-on: ubuntu-latest
     needs:
       - version-info
@@ -132,7 +135,7 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file cloudformation.yml \
-            --stack-name=cmr-notifier-${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }} \
+            --stack-name=${{ matrix.dataset }}-cmr-notifier-${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }} \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               EcrImageUri=${{ needs.dockerize.outputs.image_uri }} \
