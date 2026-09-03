@@ -56,7 +56,7 @@ Resources:
 You can add a `FilterPolicy` to the subscription properties so that only the messages you are interested in are accepted:
 <https://docs.aws.amazon.com/sns/latest/dg/sns-subscription-filter-policies.html>
 
-For example, this policy will only accept Sentinel-1 Bursts messages: 
+For example, this policy will only accept Sentinel-1 Burst product messages: 
 ```yaml
       FilterPolicyScope: MessageBody
       FilterPolicy:
@@ -64,7 +64,7 @@ For example, this policy will only accept Sentinel-1 Bursts messages:
           - suffix: '-BURST'
 ```
 
-Or, this policy will only accept Sentinel-1C SLC messages:
+Or, this policy will only accept Sentinel-1C SLC product messages:
 ```yaml
       FilterPolicyScope: MessageBody
       FilterPolicy:
@@ -73,12 +73,23 @@ Or, this policy will only accept Sentinel-1C SLC messages:
           - suffix: '-SLC'
 ```
 
-Or, when using the NISAR topic, this policy will only accept Level-1 RSLC messages:
+Or, when using the NISAR topic, this policy will only accept L-band Level-1 production RSLC product messages:
 ```yaml
       FilterPolicyScope: MessageBody
       FilterPolicy:
         granule_ur:
           - prefix: 'NISAR_L1_PR_RSLC'
+```
+
+Or, when using the NISAR topic, this policy will only accept L-band urgent-response product messages:
+```yaml
+      FilterPolicyScope: MessageBody
+      FilterPolicy:
+        granule_ur:
+          - prefix: 'NISAR_L0_UR'
+          - prefix: 'NISAR_L1_UR'
+          - prefix: 'NISAR_L2_UR'
+          - prefix: 'NISAR_L3_UR'
 ```
 
 ## Development
