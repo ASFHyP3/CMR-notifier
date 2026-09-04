@@ -17,7 +17,7 @@ Parameters:
     Type: String
 
   TopicName:
-    Descriptions: 'Name for the SNS Topic name'
+    Description: 'Name for the SNS Topic name'
     Type: String
 
 Resources:
