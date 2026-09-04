@@ -10,6 +10,7 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added 
 - Added a NISAR notification topic.
+- Added Sentinel-1D SLCs to the sentinel-1 notification topic.
 
 ## [0.1.2]
 
