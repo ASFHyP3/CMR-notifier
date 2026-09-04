@@ -7,8 +7,9 @@ and this project adheres to [PEP 440](https://www.python.org/dev/peps/pep-0440/)
 and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.0]
+
 ### Added 
-- Notification topic for NISAR products
+- Added a NISAR notification topic.
 
 ## [0.1.2]
 
@@ -23,4 +24,4 @@ and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.1.0]
 
 ### Added
-- A Sentinel-1 SLC and Sentinel-1 Burst notification topic
+- Added a Sentinel-1 SLC and Sentinel-1 Burst notification topic.

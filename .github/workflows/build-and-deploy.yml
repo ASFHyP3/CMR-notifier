@@ -108,13 +108,21 @@ jobs:
 
 
   deploy:
-    if: ${{ github.event_name != 'pull_request' }}
-    concurrency:
-      group: deploy-${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }}
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
     needs:
       - version-info
       - dockerize
+    strategy:
+      matrix:
+        maturity:
+          - ${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }}
+        dataset:
+          - sentinel1
+          - nisar
+    concurrency:
+      group: deploy-${{ matrix.dataset }}-${{ matrix.maturity }}
+    environment: ${{ matrix.dataset }}
     permissions:
       contents: read
       id-token: write
@@ -132,9 +140,10 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file cloudformation.yml \
-            --stack-name=cmr-notifier-${{ contains(needs.version-info.outputs.version_tag, '.dev') && 'test' || 'prod' }} \
+            --stack-name=${{ vars.STACK_PREFIX }}-${{ matrix.maturity }} \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               EcrImageUri=${{ needs.dockerize.outputs.image_uri }} \
               CmrDomainName=${{ vars.CMR_DOMAIN_NAME }} \
-              CmrProvider=${{ vars.CMR_PROVIDER }}
+              CmrProvider=${{ vars.CMR_PROVIDER }} \
+              TopicName=${{ vars.TOPIC_PREFIX }}-${{ matrix.maturity }}

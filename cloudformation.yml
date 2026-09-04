@@ -8,7 +8,6 @@ Parameters:
   CmrDomainName:
     Description: CMR search API domain name
     Type: String
-    Default: cmr.earthdata.nasa.gov
     AllowedValues:
       - cmr.earthdata.nasa.gov
       - cmr.uat.earthdata.nasa.gov
@@ -16,28 +15,31 @@ Parameters:
   CmrProvider:
     Description: CMR provider to use when searching for new granules
     Type: String
-    Default: ASF
+
+  TopicName:
+    Description: 'Name for the SNS Topic name'
+    Type: String
 
 Resources:
 
-  Sentinel1Topic:
+  Topic:
     Type: AWS::SNS::Topic
     Properties:
       # Note: The only other parameter that requires replacement on update is FifoTopic, so this shan't be troublesome.
       #       See: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sns-topic.html
-      TopicName: !Sub '${CmrProvider}-sentinel1-${AWS::StackName}'
+      TopicName: !Sub '${TopicName}'
 
-  Sentinel1TopicPolicy:
+  TopicPolicy:
     Type: AWS::SNS::TopicPolicy
     Properties:
       Topics:
-        - !Ref Sentinel1Topic
+        - !Ref Topic
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Action: sns:Subscribe
-            Resource: !Ref Sentinel1Topic
+            Resource: !Ref Topic
             Principal:
               AWS: "*"
             Condition:
@@ -46,42 +48,10 @@ Resources:
                   - sqs
                   - lambda
 
-  NisarTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      # Note: The only other parameter that requires replacement on update is FifoTopic, so this shan't be troublesome.
-      #       See: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sns-topic.html
-      TopicName: !Sub '${CmrProvider}-nisar-${AWS::StackName}'
-
-  NisarTopicPolicy:
-    Type: AWS::SNS::TopicPolicy
-    Properties:
-      Topics:
-        - !Ref NisarTopic
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action: sns:Subscribe
-            Resource: !Ref NisarTopic
-            Principal:
-              AWS: "*"
-            Condition:
-              StringEquals:
-                SNS:Protocol:
-                  - sqs
-                  - lambda
-
-  Sentinel1LogGroup:
+  LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${Sentinel1Lambda}"
-      RetentionInDays: 90
-
-  NisarLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${NisarLambda}"
+      LogGroupName: !Sub "/aws/lambda/${Lambda}"
       RetentionInDays: 90
 
   Role:
@@ -106,9 +76,7 @@ Resources:
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
               - Effect: Allow
                 Action: sns:Publish
-                Resource: 
-                  - !Ref Sentinel1Topic
-                  - !Ref NisarTopic
+                Resource: !Ref Topic
               - Effect: Allow
                 Action:
                   - dynamodb:GetItem
@@ -122,7 +90,7 @@ Resources:
                   - ecr:GetDownloadUrlForLayer
                 Resource: !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
 
-  Sentinel1Lambda:
+  Lambda:
     Type: AWS::Lambda::Function
     Properties:
       PackageType: Image
@@ -133,7 +101,7 @@ Resources:
         ImageUri: !Ref EcrImageUri
       Environment:
         Variables:
-          TOPIC_ARN: !Ref Sentinel1Topic
+          TOPIC_ARN: !Ref Topic
           TABLE_NAME: !Ref Table
           CMR_DOMAIN_NAME: !Ref CmrDomainName
           CMR_PROVIDER: !Ref CmrProvider
@@ -141,72 +109,30 @@ Resources:
       Role: !GetAtt Role.Arn
       Timeout: 900
 
-  NisarLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      PackageType: Image
-      ImageConfig:
-        Command:
-          - cmr_notifier.main.lambda_handler
-      Code:
-        ImageUri: !Ref EcrImageUri
-      Environment:
-        Variables:
-          TOPIC_ARN: !Ref NisarTopic
-          TABLE_NAME: !Ref Table
-          CMR_DOMAIN_NAME: !Ref CmrDomainName
-          CMR_PROVIDER: !Ref CmrProvider
-      MemorySize: 128
-      Role: !GetAtt Role.Arn
-      Timeout: 900
-
-  Sentinel1EventInvokeConfig:
+  EventInvokeConfig:
     Type: AWS::Lambda::EventInvokeConfig
     Properties:
-      FunctionName: !Ref Sentinel1Lambda
+      FunctionName: !Ref Lambda
       Qualifier: $LATEST
       MaximumRetryAttempts: 0
 
-  Sentinel1Schedule:
+  Schedule:
     Type: AWS::Events::Rule
     Properties:
       ScheduleExpression: "rate(1 minute)"
       Targets:
-        - Arn: !GetAtt Sentinel1Lambda.Arn
+        - Arn: !GetAtt Lambda.Arn
           Id: schedule
           Input: '{"window_in_seconds": 120}'
 
-  Sentinel1EventPermission:
+  EventPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !GetAtt Sentinel1Lambda.Arn
+      FunctionName: !GetAtt Lambda.Arn
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt Sentinel1Schedule.Arn
+      SourceArn: !GetAtt Schedule.Arn
 
-  NisarEventInvokeConfig:
-    Type: AWS::Lambda::EventInvokeConfig
-    Properties:
-      FunctionName: !Ref NisarLambda
-      Qualifier: $LATEST
-      MaximumRetryAttempts: 0
-
-  NisarSchedule:
-    Type: AWS::Events::Rule
-    Properties:
-      ScheduleExpression: "rate(1 minute)"
-      Targets:
-        - Arn: !GetAtt NisarLambda.Arn
-          Id: schedule
-          Input: '{"window_in_seconds": 120}'
-
-  NisarEventPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !GetAtt NisarLambda.Arn
-      Action: lambda:InvokeFunction
-      Principal: events.amazonaws.com
-      SourceArn: !GetAtt NisarSchedule.Arn
 
   Table:
     Type: AWS::DynamoDB::Table
@@ -223,9 +149,7 @@ Resources:
           KeyType: HASH
 
 Outputs:
-  Sentinel1TopicArn:
-    Description: ARN of the Sentinel-1 SNS Topic
-    Value: !Ref Sentinel1Topic
-  NisarTopicArn:
-    Description: ARN of the NISAR SNS Topic
-    Value: !Ref NisarTopic
+
+  TopicArn:
+    Description: ARN of the SNS Topic
+    Value: !Ref Topic
