@@ -1,6 +1,6 @@
 # CMR Notifier
 
-The CMR Notifier project provides public AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides this topic:
+The CMR Notifier project provides public AWS SNS Topics that monitoring applications can subscribe to for new granule notification. Currently, this repository provides these topics:
 
 * New Sentinel-1 SLC and burst granules:
   ```
@@ -13,6 +13,20 @@ The CMR Notifier project provides public AWS SNS Topics that monitoring applicat
     "granule_ur": "S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC",
     "metadata_url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=ASF&granule_ur=S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A-SLC",
     "access_urls": ["https://datapool.asf.alaska.edu/SLC/SC/S1C_WV_SLC__1SSV_20250328T085056_20250328T085537_001639_002A31_AE2A.zip"]
+  }
+  ```
+
+* New NISAR L0B, L1, L2, and L3 granules:
+  ```
+  arn:aws:sns:us-west-2:192755178564:ASF-nisar-cmr-notifier-prod`
+  ```
+  
+  which will broadcast messages like:
+  ```json
+  {
+    "granule_ur": "NISAR_L1_PR_RSLC_004_076_A_022_2005_QPDH_A_20251103T110514_20251103T110549_X05007_N_F_J_001",
+    "metadata_url": "https://cmr.earthdata.nasa.gov/search/granules.umm_json?provider=ASF&granule_ur=NISAR_L1_PR_RSLC_004_076_A_022_2005_QPDH_A_20251103T110514_20251103T110549_X05007_N_F_J_001",
+    "access_urls": ["https://datapool.asf.alaska.edu/NISAR/NISAR_L1_RSLC_V1/NISAR_L1_PR_RSLC_004_076_A_022_2005_QPDH_A_20251103T110514_20251103T110549_X05007_N_F_J_001/NISAR_L1_PR_RSLC_004_076_A_022_2005_QPDH_A_20251103T110514_20251103T110549_X05007_N_F_J_001.h5"]
   }
   ```
 
@@ -42,7 +56,7 @@ Resources:
 You can add a `FilterPolicy` to the subscription properties so that only the messages you are interested in are accepted:
 <https://docs.aws.amazon.com/sns/latest/dg/sns-subscription-filter-policies.html>
 
-For example, this policy will only accept Sentinel-1 Bursts messages: 
+For example, this policy will only accept Sentinel-1 Burst product messages: 
 ```yaml
       FilterPolicyScope: MessageBody
       FilterPolicy:
@@ -50,13 +64,32 @@ For example, this policy will only accept Sentinel-1 Bursts messages:
           - suffix: '-BURST'
 ```
 
-Or, this policy will only accept Sentinel-1C SLC messages:
+Or, this policy will only accept Sentinel-1C SLC product messages:
 ```yaml
       FilterPolicyScope: MessageBody
       FilterPolicy:
         granule_ur:
           - prefix: 'S1C_'
           - suffix: '-SLC'
+```
+
+Or, when using the NISAR topic, this policy will only accept L-band Level-1 production RSLC product messages:
+```yaml
+      FilterPolicyScope: MessageBody
+      FilterPolicy:
+        granule_ur:
+          - prefix: 'NISAR_L1_PR_RSLC'
+```
+
+Or, when using the NISAR topic, this policy will only accept L-band urgent-response product messages:
+```yaml
+      FilterPolicyScope: MessageBody
+      FilterPolicy:
+        granule_ur:
+          - prefix: 'NISAR_L0_UR'
+          - prefix: 'NISAR_L1_UR'
+          - prefix: 'NISAR_L2_UR'
+          - prefix: 'NISAR_L3_UR'
 ```
 
 ## Development
