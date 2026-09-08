@@ -4,7 +4,7 @@ The CMR Notifier project provides public AWS SNS Topics that monitoring applicat
 
 * New Sentinel-1 SLC and burst granules:
   ```
-  arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod`
+  arn:aws:sns:us-west-2:192755178564:ASF-sentinel1-cmr-notifier-prod
   ```
   
   which will broadcast messages like:
@@ -18,7 +18,7 @@ The CMR Notifier project provides public AWS SNS Topics that monitoring applicat
 
 * New NISAR L0B, L1, L2, and L3 granules:
   ```
-  arn:aws:sns:us-west-2:192755178564:ASF-nisar-cmr-notifier-prod`
+  arn:aws:sns:us-west-2:192755178564:ASF-nisar-cmr-notifier-prod
   ```
   
   which will broadcast messages like:
