@@ -1,3 +1,4 @@
+import csv
 import datetime
 import json
 import os
@@ -83,8 +84,10 @@ def get_granule_records_updated_since(
     while True:
         response = session.get(url, params=params, headers=headers)
         response.raise_for_status()
-        for item in response.text.splitlines()[1:]:
-            granule_ur, _, _, _, access, _, _, _, _ = item.split(',')
+
+        rows = list(csv.reader(response.text.splitlines()))
+        for row in rows[1:]:  # skip header
+            granule_ur, _, _, _, access, _, _, _, _ = row
             access_urls: list = access.split(',') if access else []
             granules.append((granule_ur, access_urls))
 
