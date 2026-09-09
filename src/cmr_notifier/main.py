@@ -85,9 +85,9 @@ def get_granule_records_updated_since(
         response = session.get(url, params=params, headers=headers)
         response.raise_for_status()
 
-        rows = list(csv.reader(response.text.splitlines()))
-        for row in rows[1:]:  # skip header
-            granule_ur, _, _, _, access, _, _, _, _ = row
+        row_iter = csv.reader(response.text.splitlines())
+        _ = next(row_iter)  # skip header
+        for granule_ur, _, _, _, access, _, _, _, _ in row_iter:
             access_urls: list = access.split(',') if access else []
             granules.append((granule_ur, access_urls))
 
