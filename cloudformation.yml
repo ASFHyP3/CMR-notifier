@@ -8,7 +8,6 @@ Parameters:
   CmrDomainName:
     Description: CMR search API domain name
     Type: String
-    Default: cmr.earthdata.nasa.gov
     AllowedValues:
       - cmr.earthdata.nasa.gov
       - cmr.uat.earthdata.nasa.gov
@@ -16,7 +15,10 @@ Parameters:
   CmrProvider:
     Description: CMR provider to use when searching for new granules
     Type: String
-    Default: ASF
+
+  TopicName:
+    Description: 'Name for the SNS Topic name'
+    Type: String
 
 Resources:
 
@@ -25,7 +27,7 @@ Resources:
     Properties:
       # Note: The only other parameter that requires replacement on update is FifoTopic, so this shan't be troublesome.
       #       See: https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sns-topic.html
-      TopicName: !Sub '${CmrProvider}-sentinel1-${AWS::StackName}'
+      TopicName: !Sub '${TopicName}'
 
   TopicPolicy:
     Type: AWS::SNS::TopicPolicy
