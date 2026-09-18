@@ -12,7 +12,7 @@ on:
 
 jobs:
   version-info:
-    uses: ASFHyP3/actions/.github/workflows/reusable-version-info.yml@v0.21.1
+    uses: ASFHyP3/actions/.github/workflows/reusable-pixi-version-info.yml@setup-pixi
     permissions:
       contents: read
 
