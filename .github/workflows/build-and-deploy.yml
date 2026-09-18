@@ -47,7 +47,7 @@ jobs:
       version_tag: ${{ needs.version-info.outputs.version_tag }}
       build_args: "SETUPTOOLS_SCM_PRETEND_VERSION=${{ needs.version-info.outputs.version }}"
       platforms: 'linux/amd64'
-      provenance: 'false'
+      provenance: false
 
     permissions:
       contents: read
