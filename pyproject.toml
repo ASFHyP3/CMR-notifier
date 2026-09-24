@@ -14,17 +14,17 @@ readme = "README.md"
 requires-python = "==3.13.*"
 dependencies = [
     'requests==2.34.2',
-    'boto3==1.43.88',
+    'boto3==1.43.98',
 ]
 
 [project.optional-dependencies]
 develop = [
-    'cfn-lint==1.56.0',
+    'cfn-lint==1.57.0',
     'mypy==2.3.1',
     'pytest==9.1.1',
-    'pytest-env==1.7.0',
+    'pytest-env==1.7.1',
     'responses==0.26.3',
-    'ruff==0.16.6',
+    'ruff==0.16.8',
     'setuptools_scm>=10.2.3',
     'types-requests',
     'types-PySocks',
