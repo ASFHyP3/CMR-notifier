@@ -38,7 +38,7 @@ jobs:
 
   dockerize:
     needs: version-info
-    uses: ASFHyP3/actions/.github/workflows/reusable-docker-ecr.yml@support-docker-lambdas
+    uses: ASFHyP3/actions/.github/workflows/reusable-docker-ecr.yml@v0.22.0
     with:
       fetch_depth: 1
       aws_region: ${{ vars.AWS_REGION }}
