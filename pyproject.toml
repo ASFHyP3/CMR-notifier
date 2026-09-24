@@ -89,8 +89,6 @@ pretty = true
 disable_error_code = ["import-untyped"]
 
 [tool.pytest_env]
-AWS_SECRET_KEY_ID = {value = "foo", skip_if_set = true}
-AWS_SECRET_ACCESS_KEY = {value = "bar", skip_if_set = true}
 AWS_DEFAULT_REGION = {value = "us-west-2", skip_if_set = true}
 
 [tool.pixi.workspace]
