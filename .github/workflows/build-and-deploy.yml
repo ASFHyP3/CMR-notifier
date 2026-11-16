@@ -12,13 +12,13 @@ on:
 
 jobs:
   version-info:
-    uses: ASFHyP3/actions/.github/workflows/reusable-pixi-version-info.yml@v0.22.0
+    uses: ASFHyP3/actions/.github/workflows/reusable-pixi-version-info.yml@v0.22.1
     permissions:
       contents: read
 
   dockerize:
     needs: version-info
-    uses: ASFHyP3/actions/.github/workflows/reusable-docker-ecr.yml@v0.22.0
+    uses: ASFHyP3/actions/.github/workflows/reusable-docker-ecr.yml@v0.22.1
     with:
       fetch_depth: 1
       aws_region: ${{ vars.AWS_REGION }}
